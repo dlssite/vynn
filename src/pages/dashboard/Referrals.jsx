@@ -166,6 +166,29 @@ const Referrals = () => {
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Link Clicks Card */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="stat-card"
+                    style={{ background: 'linear-gradient(135deg, rgba(82, 82, 91, 0.4) 0%, rgba(255,255,255,0.03) 100%)' }}
+                >
+                    <div className="stat-icon" style={{ transform: 'rotate(-10deg)', opacity: 0.1 }}>
+                        <FaStar />
+                    </div>
+                    <div className="relative z-10">
+                        <h3 className="stat-label">Link Clicks</h3>
+                        <div className="stat-value">
+                            <span className="stat-number">{stats?.referralClicks || 0}</span>
+                            <span className="stat-unit" style={{ color: '#a1a1aa' }}>CLICKS</span>
+                        </div>
+                        <p className="stat-meta">
+                            Total referral link traffic
+                        </p>
+                    </div>
+                </motion.div>
             </div>
 
             {/* Referral Codes */}
@@ -194,6 +217,12 @@ const Referrals = () => {
                                 {copied ? <FaCheck className="text-green" /> : <FaCopy />}
                             </button>
                         </div>
+                        <div style={{ marginTop: '12px', fontSize: '0.7rem', color: 'rgba(255,255,255,0.4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span>Link:</span>
+                            <code style={{ background: 'rgba(255,255,255,0.05)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer' }} onClick={() => copyToClipboard(`${window.location.origin}/r/${codes?.referralCode}`)}>
+                                {window.location.host}/r/{codes?.referralCode}
+                            </code>
+                        </div>
                     </div>
 
                     {/* Premium Code */}
@@ -216,6 +245,12 @@ const Referrals = () => {
                                 >
                                     {copied ? <FaCheck /> : <FaCopy />}
                                 </button>
+                            </div>
+                            <div style={{ marginTop: '12px', fontSize: '0.7rem', color: 'rgba(252, 211, 77, 0.4)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span>Link:</span>
+                                <code style={{ background: 'rgba(234, 179, 8, 0.05)', border: '1px solid rgba(234, 179, 8, 0.1)', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', color: '#fcd34d' }} onClick={() => copyToClipboard(`${window.location.origin}/r/${codes?.premiumReferralCode}`)}>
+                                    {window.location.host}/r/{codes?.premiumReferralCode}
+                                </code>
                             </div>
                         </div>
                     ) : (

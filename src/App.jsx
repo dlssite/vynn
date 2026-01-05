@@ -19,6 +19,7 @@ import Templates from './pages/dashboard/Templates'
 import Store from './pages/dashboard/Store'
 import ForgeGallery from './pages/dashboard/ForgeGallery'
 import Referrals from './pages/dashboard/Referrals'
+import ReferralRedirect from './pages/ReferralRedirect'
 
 function App() {
     return (
@@ -28,6 +29,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/login/callback" element={<LoginCallback />} />
             <Route path="/register" element={<Signup />} />
+            <Route path="/signup" element={<Navigate to="/register" replace />} />
+            <Route path="/r/:code" element={<ReferralRedirect />} />
 
             {/* Dashboard Routes (Command Center) */}
             <Route path="/dashboard" element={<Navigate to="/account" replace />} />

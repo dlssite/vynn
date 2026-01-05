@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
+import { useConfig } from '../../context/ConfigContext';
 import { useDashboard } from '../../context/DashboardContext';
 import api from '../../services/api';
 import Button from '../../components/Button';
@@ -26,6 +27,7 @@ const Design = () => {
         setPreviewMuted,
         fetchProfile
     } = useDashboard();
+    const { config: systemConfig } = useConfig();
     const [loading, setLoading] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [activeAssetSection, setActiveAssetSection] = useState(null);
@@ -734,7 +736,10 @@ const Design = () => {
                                             </div>
                                             <div className="flex flex-col gap-1 mt-3 px-1">
                                                 <p className="text-[9px] text-muted leading-tight">Display server stats: Icons, Member Count, and Online state.</p>
-                                                <p className="text-[8px] text-orange-500/60 font-medium italic">Adding the bot to your server is optional but unlocks richer stats & nitro levels.</p>
+                                                <p className="text-[8px] text-orange-500/60 font-medium italic flex items-center gap-2">
+                                                    Linking requires the Vynn Bot.
+                                                    <a href={systemConfig.botInviteLink} target="_blank" rel="noopener noreferrer" className="text-orange-500 underline">Invite Bot</a>
+                                                </p>
                                             </div>
 
                                             {/* PREMIUM PROTOCOL PREVIEW */}
@@ -769,7 +774,7 @@ const Design = () => {
                                         Be part of the community to enjoy exclusive profile features.
                                     </div>
                                     <a
-                                        href={import.meta.env.VITE_DISCORD_INVITE_URL || 'https://discord.gg/vynn'}
+                                        href={systemConfig.serverInviteLink}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="prompt-action-btn"

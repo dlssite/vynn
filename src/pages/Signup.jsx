@@ -13,8 +13,10 @@ const Signup = () => {
         username: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        referralCode: ''
     });
+    const [isReferralLocked, setIsReferralLocked] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // Username availability state
@@ -23,6 +25,26 @@ const Signup = () => {
 
     const { signup } = useAuth();
     const navigate = useNavigate();
+
+    // Auto-fill referral code from URL
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const refCode = params.get('ref');
+        if (refCode) {
+            setFormData(prev => ({ ...prev, referralCode: refCode }));
+            setIsReferralLocked(true);
+            // Proactively validate
+            api.post('/referral/validate', { code: refCode })
+                .then(res => {
+                    if (res.data.valid) {
+                        toast.success(`Welcome! You were referred by ${res.data.referrer.username}`);
+                    }
+                })
+                .catch(() => {
+                    setIsReferralLocked(false); // Unlock if invalid
+                });
+        }
+    }, []);
 
     // Debounce username check
     useEffect(() => {
@@ -228,9 +250,32 @@ const Signup = () => {
                                         }
                                     }}
                                     placeholder="VYNN-XXXX or vynn+username"
-                                    style={inputStyle}
+                                    style={{
+                                        ...inputStyle,
+                                        opacity: isReferralLocked ? 0.7 : 1,
+                                        cursor: isReferralLocked ? 'not-allowed' : 'text',
+                                        background: isReferralLocked ? 'rgba(255,255,255,0.02)' : 'rgba(255,255,255,0.05)'
+                                    }}
                                     autoComplete="off"
+                                    readOnly={isReferralLocked}
                                 />
+                                {isReferralLocked && (
+                                    <div
+                                        onClick={() => setIsReferralLocked(false)}
+                                        style={{
+                                            position: 'absolute',
+                                            right: '12px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            fontSize: '0.7rem',
+                                            color: 'var(--accent)',
+                                            cursor: 'pointer',
+                                            fontWeight: 600
+                                        }}
+                                    >
+                                        CHANGE
+                                    </div>
+                                )}
                             </div>
                         </div>
 

@@ -41,7 +41,10 @@ export const referralAPI = {
     // Credits
     getCredits: () => api.get('/referral/credits'),
     getCreditHistory: () => api.get('/referral/credits/history'),
-    giftCredits: (username, amount) => api.post('/referral/credits/gift', { username, amount })
+    giftCredits: (username, amount) => api.post('/referral/credits/gift', { username, amount }),
+
+    // Analytics
+    trackClick: (code) => api.post(`/referral/click/${code}`)
 };
 
 export default api

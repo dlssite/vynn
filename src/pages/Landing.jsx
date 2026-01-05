@@ -6,10 +6,12 @@ import Button from '../components/Button';
 import ParticleBackground from '../components/ParticleBackground';
 import { FaDiscord, FaBolt, FaCrown, FaUsers, FaPalette, FaShieldAlt } from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
+import { useConfig } from '../context/ConfigContext';
 
 const Landing = () => {
     const { scrollYProgress } = useScroll();
     const { isAuthenticated } = useAuth();
+    const { config } = useConfig();
     const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
     // Scroll reveal animation variants
@@ -348,12 +350,12 @@ const Landing = () => {
                                     </Button>
                                 </Link>
                             )}
-                            <Link to="/discord" style={{ width: '100%', maxWidth: '280px' }}>
+                            <a href={config.serverInviteLink} target="_blank" rel="noopener noreferrer" style={{ width: '100%', maxWidth: '280px' }}>
                                 <Button variant="outline" size="lg" fullWidth style={{ padding: '16px', fontSize: '1rem' }}>
                                     <FaDiscord style={{ marginRight: '10px' }} />
                                     Join Community
                                 </Button>
-                            </Link>
+                            </a>
                         </div>
                     </motion.div>
                 </div>
