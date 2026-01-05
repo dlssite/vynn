@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import api from '../../../services/api';
+import api, { referralAPI } from '../../../services/api';
 import Button from '../../../components/Button';
 import toast from 'react-hot-toast';
-import { FaAt, FaFingerprint, FaInfoCircle, FaEnvelope, FaTrash, FaUserSecret, FaDiscord } from 'react-icons/fa';
+import { FaAt, FaFingerprint, FaInfoCircle, FaEnvelope, FaTrash, FaUserSecret, FaDiscord, FaUserPlus, FaBolt, FaCoins, FaExclamationTriangle } from 'react-icons/fa';
 
 const Settings = () => {
     const { user } = useAuth();
@@ -11,8 +11,20 @@ const Settings = () => {
     const [formData, setFormData] = useState({
         displayName: user?.displayName || '',
         bio: user?.bio || '',
-        username: user?.username || ''
+        username: user?.username || '',
+        isNSFW: user?.isNSFW || false
     });
+    const [referrer, setReferrer] = useState(null);
+
+    useEffect(() => {
+        const loadReferrer = async () => {
+            try {
+                const res = await referralAPI.getReferrer();
+                if (res.data && res.data.referredBy) setReferrer(res.data);
+            } catch (e) { }
+        };
+        loadReferrer();
+    }, []);
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -43,13 +55,29 @@ const Settings = () => {
         try {
             await api.put('/profiles/@me', {
                 displayName: formData.displayName,
-                bio: formData.bio
+                bio: formData.bio,
+                isNSFW: formData.isNSFW
             });
             toast.success('Settings updated successfully!');
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to update settings');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleToggleNSFW = async () => {
+        const newValue = !formData.isNSFW;
+        setFormData({ ...formData, isNSFW: newValue });
+
+        try {
+            await api.put('/profiles/@me', { isNSFW: newValue });
+            toast.success(`NSFW filter turned ${newValue ? 'ON' : 'OFF'}`);
+            // Force refresh user context to propagate change to other components
+            window.location.reload();
+        } catch (error) {
+            setFormData({ ...formData, isNSFW: !newValue }); // Revert on error
+            toast.error('Failed to update setting');
         }
     };
 
@@ -61,6 +89,37 @@ const Settings = () => {
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                {/* Account Stats */}
+                <div className="dash-grid grid-cols-1 md-cols-3" style={{ gap: '20px' }}>
+                    <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(88, 28, 135, 0.4)', color: '#c084fc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                            <FaInfoCircle />
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Level</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>{user?.level || 1}</p>
+                        </div>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                            <FaBolt />
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Experience</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>{user?.xp?.toLocaleString() || 0}</p>
+                        </div>
+                    </div>
+                    <div className="glass-panel" style={{ padding: '24px', borderRadius: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(234, 179, 8, 0.2)', color: '#fcd34d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                            <FaCoins />
+                        </div>
+                        <div>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Credits</p>
+                            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: 'white' }}>{user?.credits?.toLocaleString() || 0}</p>
+                        </div>
+                    </div>
+                </div>
+
                 {/* Identity & Profile */}
                 <section className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
@@ -129,6 +188,36 @@ const Settings = () => {
                     </div>
                 </section>
 
+                {/* Content Settings */}
+                <section className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyCenter: 'center', fontSize: '1.2rem' }}>
+                            <FaExclamationTriangle style={{ margin: 'auto' }} />
+                        </div>
+                        <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Content Settings</h2>
+                    </div>
+
+                    <div style={{ display: 'flex', alignItems: 'center', justifyCenter: 'space-between', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <div>
+                            <p style={{ fontWeight: 'bold', color: 'white', marginBottom: '4px' }}>NSFW Profile</p>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Mark your profile as Not Safe For Work. Visitors will see a warning content gate.</p>
+                        </div>
+                        <div
+                            onClick={handleToggleNSFW}
+                            style={{
+                                width: '48px', height: '26px',
+                                background: formData.isNSFW ? '#ef4444' : 'rgba(255,255,255,0.1)',
+                                borderRadius: '13px', position: 'relative', cursor: 'pointer', transition: '0.3s'
+                            }}
+                        >
+                            <div style={{
+                                width: '20px', height: '20px', background: 'white', borderRadius: '50%',
+                                position: 'absolute', top: '3px', left: formData.isNSFW ? '25px' : '3px', transition: '0.3s'
+                            }} />
+                        </div>
+                    </div>
+                </section>
+
                 {/* Security Section (Placeholder) */}
                 <section className="glass-panel" style={{ padding: '32px', borderRadius: '32px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
@@ -151,6 +240,33 @@ const Settings = () => {
                         </div>
                     </div>
                 </section>
+
+                {/* Referrals */}
+                {referrer && (
+                    <section className="glass-panel" style={{ padding: '32px', borderRadius: '32px', marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+                            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10B981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
+                                <FaUserPlus style={{ margin: 'auto' }} />
+                            </div>
+                            <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold' }}>Referral Status</h2>
+                        </div>
+
+                        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '24px', padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                                <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '4px' }}>You were referred by</p>
+                                <p style={{ fontSize: '1.1rem', fontWeight: 'bold', color: 'white' }}>@{referrer.referredBy.username}</p>
+                                <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                                    <span style={{ fontSize: '0.75rem', background: 'rgba(255,255,255,0.1)', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>
+                                        Code: {referrer.codeUsed}
+                                    </span>
+                                </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                                <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>Referral Active</p>
+                            </div>
+                        </div>
+                    </section>
+                )}
 
                 {/* Social Connections */}
                 <section className="glass-panel" style={{ padding: '32px', borderRadius: '32px', marginBottom: '32px' }}>

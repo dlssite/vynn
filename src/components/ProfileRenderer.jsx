@@ -449,14 +449,43 @@ const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = fa
                         ) : null}
                     </div>
                 )}
+            </div>
 
-                {/* Footer */}
-                <div style={{ textAlign: 'center', marginTop: '20px', opacity: 0.5 }}>
-                    <Link to="/" style={{ textDecoration: 'none', color: 'inherit', fontSize: '0.8rem', fontWeight: 600 }}>
-                        VYNN
+            {/* Footer - Fixed Bottom (Public Only) */}
+            {!previewMode && (
+                <div style={{ position: 'fixed', bottom: '24px', left: 0, right: 0, zIndex: 50, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+                    <Link
+                        to="/login"
+                        style={{
+                            pointerEvents: 'auto',
+                            textDecoration: 'none',
+                            background: 'rgba(0,0,0,0.6)',
+                            backdropFilter: 'blur(10px)',
+                            border: '1px solid rgba(255,255,255,0.1)',
+                            borderRadius: '20px',
+                            padding: '10px 24px',
+                            display: 'flex', alignItems: 'center', gap: '8px',
+                            color: 'white',
+                            fontSize: '0.9rem', fontWeight: 600,
+                            transition: 'all 0.2s',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.2)'
+                        }}
+                        onMouseOver={e => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                            e.currentTarget.style.background = 'rgba(0,0,0,0.8)';
+                            e.currentTarget.style.borderColor = 'var(--profile-primary)';
+                        }}
+                        onMouseOut={e => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.background = 'rgba(0,0,0,0.6)';
+                            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                        }}
+                    >
+                        <FaRocket style={{ color: 'var(--profile-primary)' }} />
+                        <span>Claim your Vynn</span>
                     </Link>
                 </div>
-            </div>
+            )}
 
             {/* CSS for hover effects that are hard to do inline */}
             <style>{`

@@ -1,18 +1,31 @@
 import { useState, useEffect } from 'react';
-import api from '../../services/api';
+import api, { referralAPI } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 import Button from '../../components/Button';
 import toast from 'react-hot-toast';
-import { FaShoppingCart, FaGem, FaCheck, FaSearch, FaMusic, FaFilter } from 'react-icons/fa';
+import { FaShoppingCart, FaGem, FaCheck, FaSearch, FaMusic, FaFilter, FaCoins } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Store = () => {
+    const { user, refreshUser } = useAuth(); // Assuming refreshUser exists or we just manage local state
     const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('all');
+    const [credits, setCredits] = useState(0);
 
     useEffect(() => {
         fetchItems();
+        fetchCredits();
     }, [activeTab]);
+
+    const fetchCredits = async () => {
+        try {
+            const res = await referralAPI.getCredits();
+            setCredits(res.data.credits);
+        } catch (error) {
+            console.error('Error fetching credits', error);
+        }
+    };
 
     const fetchItems = async () => {
         setLoading(true);
@@ -30,12 +43,24 @@ const Store = () => {
 
     const handleBuy = async (item) => {
         try {
-            await api.post(`/store/${item._id}/buy`);
+            const res = await api.post(`/store/${item._id}/buy`);
             toast.success(`Acquired ${item.name}!`);
             setItems(prev => prev.map(i => i._id === item._id ? { ...i, owned: true } : i));
+
+            // Update credits if returned, or re-fetch
+            if (res.data.newBalance !== undefined) {
+                setCredits(res.data.newBalance);
+            } else {
+                fetchCredits();
+            }
         } catch (error) {
             const msg = error.response?.data?.error || 'Purchase failed';
-            toast.error(msg);
+
+            if (error.response?.data?.required) {
+                toast.error(`Insufficient credits! Need ${error.response.data.required}, have ${error.response.data.current}`);
+            } else {
+                toast.error(msg);
+            }
         }
     };
 
@@ -64,14 +89,38 @@ const Store = () => {
         <div style={{ minHeight: '100vh', paddingBottom: '4rem' }}>
             {/* Header Area */}
             <header className="mb-10 px-4 md:px-0">
-                <div className="forge-section-tag mb-2">The Marketplace</div>
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end">
+                <div className="flex justify-between items-start">
                     <div>
+                        <div className="forge-section-tag mb-2">The Marketplace</div>
                         <h1 style={{ fontSize: 'clamp(2.5rem, 5vw, 3.5rem)', fontWeight: 900, letterSpacing: '-0.05em', margin: 0, lineHeight: 1 }}>STORE</h1>
                         <p className="text-secondary text-sm md:text-base mt-2 max-w-[400px]">
                             Discover premium assets to elevate your digital presence.
-                            From mythic frames to sonic atmospheres.
                         </p>
+                    </div>
+
+                    {/* Credit Balance Display */}
+                    <div style={{
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '12px',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-end',
+                        minWidth: '150px'
+                    }}>
+                        <span style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 700,
+                            color: 'var(--text-muted)',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.05em',
+                            marginBottom: '4px'
+                        }}>Your Credits</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <FaCoins style={{ color: 'var(--accent)' }} />
+                            <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'white' }}>{credits}</span>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -252,7 +301,12 @@ const Store = () => {
                                         }}
                                     >
                                         {['free', 'premium', 'event'].includes(item.type) ? 'Claim Item' :
-                                            item.type === 'purchase' ? 'Purchase Now' :
+                                            item.type === 'purchase' ? (
+                                                <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                                                    {item.currency === 'credits' ? <FaCoins /> : <FaGem />}
+                                                    {item.price} {item.currency === 'credits' ? 'Credits' : 'Gems'}
+                                                </span>
+                                            ) :
                                                 item.type === 'exclusive' ? 'Request Access' : 'Acquire'}
                                     </Button>
                                 ) : (

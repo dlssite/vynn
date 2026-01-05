@@ -65,19 +65,68 @@ const Profile = () => {
     // NSFW gate
     if (data.profile.isNSFW && !nsfwConfirmed) {
         return (
-            <div className="fixed inset-0 bg-black flex items-center justify-center p-4 z-50">
-                <div className="bg-[#111] border border-red-500/30 rounded-2xl p-8 max-w-md text-center">
-                    <FaExclamationTriangle className="text-4xl text-red-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold mb-2">Age Restricted Content</h2>
-                    <p className="text-gray-400 mb-6">This profile may contain content not suitable for all ages.</p>
-                    <div className="flex flex-col gap-3">
+            <div style={{
+                position: 'fixed', inset: 0, backgroundColor: 'rgba(5, 5, 5, 0.95)',
+                backdropFilter: 'blur(10px)', zIndex: 9999,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                padding: '20px'
+            }}>
+                <div style={{
+                    width: '100%', maxWidth: '420px',
+                    background: 'linear-gradient(145deg, #111111, #0a0a0a)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '24px', padding: '40px',
+                    textAlign: 'center',
+                    boxShadow: '0 20px 50px rgba(0,0,0,0.5)'
+                }}>
+                    <div style={{
+                        width: '80px', height: '80px', margin: '0 auto 24px auto',
+                        background: 'rgba(239, 68, 68, 0.1)', borderRadius: '50%',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center'
+                    }}>
+                        <FaExclamationTriangle size={32} color="#ef4444" />
+                    </div>
+
+                    <h2 style={{ fontSize: '1.8rem', fontWeight: 'bold', color: 'white', marginBottom: '12px' }}>
+                        Age Restricted Content
+                    </h2>
+
+                    <p style={{ color: '#a1a1aa', lineHeight: 1.6, marginBottom: '32px' }}>
+                        This profile contains content marked as NSFW (Not Safe For Work).
+                        You must be 18 years or older to view this page.
+                    </p>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         <button
-                            className="w-full py-3 bg-red-600 hover:bg-red-700 rounded-xl font-bold transition-colors"
                             onClick={() => setNsfwConfirmed(true)}
+                            style={{
+                                width: '100%', padding: '16px',
+                                background: '#ef4444', color: 'white',
+                                border: 'none', borderRadius: '12px',
+                                fontSize: '1rem', fontWeight: 'bold',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s, background 0.2s'
+                            }}
+                            onMouseOver={e => e.target.style.transform = 'scale(1.02)'}
+                            onMouseOut={e => e.target.style.transform = 'scale(1)'}
                         >
                             I am 18 or older
                         </button>
-                        <Link to="/" className="w-full py-3 bg-white/5 hover:bg-white/10 rounded-xl font-bold transition-colors">Go Back</Link>
+
+                        <Link
+                            to="/"
+                            style={{
+                                display: 'block', width: '100%', padding: '16px',
+                                background: 'rgba(255,255,255,0.05)', color: 'white',
+                                textDecoration: 'none', borderRadius: '12px',
+                                fontSize: '1rem', fontWeight: 'bold',
+                                transition: 'background 0.2s'
+                            }}
+                            onMouseOver={e => e.target.style.background = 'rgba(255,255,255,0.1)'}
+                            onMouseOut={e => e.target.style.background = 'rgba(255,255,255,0.05)'}
+                        >
+                            Go Back
+                        </Link>
                     </div>
                 </div>
             </div>

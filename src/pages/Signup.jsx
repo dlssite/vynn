@@ -89,11 +89,12 @@ const Signup = () => {
 
         setLoading(true);
         try {
-            await signup(formData.email, formData.password, formData.username);
+            await signup(formData.email, formData.password, formData.username, formData.referralCode);
             navigate('/account');
         } catch (error) {
             console.error(error);
-            if (!error.handled) toast.error('Failed to register');
+            const message = error.response?.data?.error || 'Failed to create account';
+            toast.error(message);
         } finally {
             setLoading(false);
         }
@@ -112,7 +113,7 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
             <ParticleBackground />
 
             {/* Background Effects */}
@@ -128,15 +129,15 @@ const Signup = () => {
                 <div className="glass-panel" style={{ padding: '40px', borderRadius: '24px' }}>
                     <div className="text-center" style={{ marginBottom: '32px' }}>
                         <Link to="/" style={{ display: 'inline-block', marginBottom: '24px' }}>
-                            <h1 className="text-3xl font-bold" style={{ letterSpacing: '-0.05em' }}>VYNN<span className="text-accent">.</span></h1>
+                            <h1 style={{ fontSize: '1.875rem', fontWeight: 700, letterSpacing: '-0.05em' }}>VYNN<span style={{ color: 'var(--accent)' }}>.</span></h1>
                         </Link>
-                        <h2 className="text-2xl font-medium" style={{ marginBottom: '8px' }}>Initialize</h2>
-                        <p className="text-sm text-secondary">Create your digital presence.</p>
+                        <h2 style={{ fontSize: '1.5rem', fontWeight: 500, marginBottom: '8px' }}>Initialize</h2>
+                        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Create your digital presence.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <div style={{ position: 'relative' }}>
-                            <label className="text-xs font-bold text-muted" style={{ display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Username</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Username</label>
                             <div style={{ position: 'relative' }}>
                                 <input
                                     type="text"
@@ -152,10 +153,11 @@ const Signup = () => {
                                     autoComplete="off"
                                 />
                                 <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
-                                    {usernameStatus === 'checking' && <FaSpinner className="animate-spin text-secondary" />}
-                                    {usernameStatus === 'available' && <FaCheckCircle className="text-green-500" />}
-                                    {(usernameStatus === 'taken' || usernameStatus === 'invalid') && <FaTimesCircle className="text-red-500" />}
+                                    {usernameStatus === 'checking' && <FaSpinner style={{ animation: 'spin 1s linear infinite', color: 'var(--text-secondary)' }} />}
+                                    {usernameStatus === 'available' && <FaCheckCircle style={{ color: '#10B981' }} />}
+                                    {(usernameStatus === 'taken' || usernameStatus === 'invalid') && <FaTimesCircle style={{ color: '#EF4444' }} />}
                                 </div>
+                                <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
                             </div>
                             {/* Validation Message */}
                             {usernameStatus !== 'idle' && usernameStatus !== 'checking' && (
@@ -169,7 +171,7 @@ const Signup = () => {
                             )}
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-muted" style={{ display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Email</label>
                             <input
                                 type="email"
                                 name="email"
@@ -180,7 +182,7 @@ const Signup = () => {
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-muted" style={{ display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
                             <input
                                 type="password"
                                 name="password"
@@ -191,7 +193,7 @@ const Signup = () => {
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-muted" style={{ display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Confirm Password</label>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Confirm Password</label>
                             <input
                                 type="password"
                                 name="confirmPassword"
@@ -202,6 +204,36 @@ const Signup = () => {
                             />
                         </div>
 
+                        {/* Referral Code Section */}
+                        <div style={{ position: 'relative' }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                Referral Code <span style={{ opacity: 0.5, fontWeight: 'normal', textTransform: 'none' }}>(Optional)</span>
+                            </label>
+                            <div style={{ position: 'relative' }}>
+                                <input
+                                    type="text"
+                                    name="referralCode"
+                                    value={formData.referralCode || ''}
+                                    onChange={handleChange}
+                                    onBlur={async (e) => {
+                                        if (e.target.value.length > 3) {
+                                            try {
+                                                const res = await api.post('/referral/validate', { code: e.target.value });
+                                                if (res.data.valid) {
+                                                    toast.success(`Referral valid! Referred by ${res.data.referrer.username}`);
+                                                }
+                                            } catch (err) {
+                                                toast.error('Invalid referral code');
+                                            }
+                                        }
+                                    }}
+                                    placeholder="VYNN-XXXX or vynn+username"
+                                    style={inputStyle}
+                                    autoComplete="off"
+                                />
+                            </div>
+                        </div>
+
                         <Button
                             type="submit"
                             fullWidth
@@ -209,7 +241,7 @@ const Signup = () => {
                             disabled={loading || usernameStatus === 'checking' || usernameStatus === 'taken'}
                             style={{ marginTop: '16px', opacity: (loading || usernameStatus === 'checking' || usernameStatus === 'taken') ? 0.7 : 1 }}
                         >
-                            {loading ? 'Creating Account...' : 'Get Started'}
+                            {loading ? 'Creating Account (and rewards!)...' : 'Get Started'}
                         </Button>
                     </form>
 
@@ -242,7 +274,7 @@ const Signup = () => {
                         Join with Discord
                     </a>
 
-                    <div className="text-center text-sm text-secondary" style={{ marginTop: '32px' }}>
+                    <div style={{ textAlign: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)', marginTop: '32px' }}>
                         Already have an account?{' '}
                         <Link to="/login" style={{ color: 'white', fontWeight: 500, textDecoration: 'underline', textUnderlineOffset: '4px' }}>
                             Sign in

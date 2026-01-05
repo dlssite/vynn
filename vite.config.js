@@ -9,8 +9,9 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             proxy: {
                 '/api': {
-                    target: env.VITE_VYNN_API_BASE || 'https://v1api.vynn.me',
-                    changeOrigin: true
+                    target: env.VITE_VYNN_API_BASE || 'http://localhost:5001',
+                    changeOrigin: true,
+                    secure: false
                 }
             }
         }

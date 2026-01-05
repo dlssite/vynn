@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaUser, FaLink, FaPalette, FaSignOutAlt, FaChevronDown, FaStar, FaLayerGroup, FaShoppingCart, FaHistory } from 'react-icons/fa';
+import { FaUser, FaLink, FaPalette, FaSignOutAlt, FaChevronDown, FaStar, FaLayerGroup, FaShoppingCart, FaHistory, FaUserPlus } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import LivePreview from './LivePreview';
 import './Dashboard.css';
@@ -28,6 +28,7 @@ const DashboardLayoutContent = ({ children }) => {
         },
         { path: '/design', label: 'Customize', icon: FaPalette },
         { path: '/store', label: 'Store', icon: FaShoppingCart },
+        { path: '/dashboard/referrals', label: 'Referrals', icon: FaUserPlus },
         { path: '/templates', label: 'Templates', icon: FaLayerGroup },
         { path: '/forge', label: 'Vault', icon: FaHistory },
         { path: '/links', label: 'Links', icon: FaLink },

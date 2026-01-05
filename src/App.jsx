@@ -18,6 +18,7 @@ import Premium from './pages/dashboard/Premium'
 import Templates from './pages/dashboard/Templates'
 import Store from './pages/dashboard/Store'
 import ForgeGallery from './pages/dashboard/ForgeGallery'
+import Referrals from './pages/dashboard/Referrals'
 
 function App() {
     return (
@@ -93,6 +94,13 @@ function App() {
                 <ProtectedRoute>
                     <DashboardLayout>
                         <Store />
+                    </DashboardLayout>
+                </ProtectedRoute>
+            } />
+            <Route path="/dashboard/referrals" element={
+                <ProtectedRoute>
+                    <DashboardLayout>
+                        <Referrals />
                     </DashboardLayout>
                 </ProtectedRoute>
             } />

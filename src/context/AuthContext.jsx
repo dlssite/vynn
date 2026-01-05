@@ -29,7 +29,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await api.get('/auth/me')
             const { user: userData, profile } = response.data
-            setUser({ ...userData, avatar: profile?.avatar })
+            setUser({ ...userData, avatar: profile?.avatar, bio: profile?.bio, isNSFW: profile?.isNSFW })
         } catch (error) {
             localStorage.removeItem('vynn_token')
         } finally {
@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }) => {
         return true
     }
 
-    const signup = async (email, password, username) => {
-        const response = await api.post('/auth/register', { email, password, username })
+    const signup = async (email, password, username, referralCode) => {
+        const response = await api.post('/auth/register', { email, password, username, referralCode })
         const { token } = response.data
         localStorage.setItem('vynn_token', token)
         await checkAuth()
