@@ -83,7 +83,13 @@ const Design = () => {
         const owned = inventory[type] || [];
 
         // Filter vault assets for this type
-        const vault = (inventory.vault || []).filter(asset => asset.type === type).map(asset => ({
+        const vault = (inventory.vault || []).filter(asset => {
+            // Strict match
+            if (asset.type === type) return true;
+            // Allow generic 'image' to show in background/avatar sections
+            if ((type === 'background' || type === 'avatar') && asset.type === 'image') return true;
+            return false;
+        }).map(asset => ({
             ...asset,
             imageUrl: asset.url, // Standardize for preview
             rarity: 'common' // Default rarity for uploads
@@ -316,19 +322,29 @@ const Design = () => {
         formData.append('file', file);
         if (name) formData.append('name', name);
 
+        // Pass the active section as the type (e.g., 'background', 'avatar', 'cursor')
+        if (activeAssetSection) {
+            formData.append('type', activeAssetSection);
+        }
+
         try {
             const res = await api.post('/upload', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
 
-            const url = res.data.url;
+            const asset = res.data.asset; // Full asset object
+            const url = asset.url;
             refreshStats(); // Sync stats globally
 
-            let type = 'image';
-            if (file.type.startsWith('video')) type = 'video';
-            if (file.type.startsWith('audio') || file.type.includes('mpeg')) type = 'audio';
+            // Update local inventory immediately
+            setInventory(prev => ({
+                ...prev,
+                vault: [asset, ...prev.vault]
+            }));
 
-            applyAsset(activeAssetSection, url, { metadata: { type } });
+            let type = asset.type; // Use the type from response
+
+            applyAsset(activeAssetSection, url, asset); // Pass full asset
             setIsModalOpen(false);
         } catch (error) {
             const msg = error.response?.data?.error || 'Upload failed';

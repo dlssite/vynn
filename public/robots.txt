@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vynn.io/sitemap.xml

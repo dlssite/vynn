@@ -329,6 +329,28 @@
     .hide-desktop {
         display: block !important;
     }
+
+    .editor-content {
+        padding: 20px;
+        /* Reduced from 40px */
+        padding-bottom: 100px;
+        /* Keep space for bottom nav if exists */
+    }
+}
+
+@media (max-width: 640px) {
+    .asset-well-grid {
+        gap: 12px;
+        /* Tighter gap */
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .forge-section-tag {
+        font-size: 9px;
+    }
 }
 
 @media (min-width: 1025px) {

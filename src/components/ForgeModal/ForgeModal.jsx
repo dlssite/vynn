@@ -103,11 +103,11 @@ const ForgeModal = ({
                             {/* Action Container */}
                             <div className="forge-action-grid">
                                 {relevantDiscordAssets.length > 0 && (
-                                    <div className="discord-assets-section mb-6">
-                                        <div className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3 flex items-center gap-2">
-                                            <FaDiscord className="text-blue-400" /> DISCORD PROTOCOL SYNC
+                                    <div className="discord-assets-section">
+                                        <div className="discord-section-label">
+                                            <FaDiscord className="discord-icon" /> DISCORD PROTOCOL SYNC
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3">
+                                        <div className="discord-assets-grid">
                                             {relevantDiscordAssets.map((asset, idx) => (
                                                 <button
                                                     key={idx}

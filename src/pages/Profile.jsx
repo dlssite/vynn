@@ -6,6 +6,7 @@ import ProfileRenderer from '../components/ProfileRenderer'
 import './Profile.css'
 
 import ClickToEnter from '../components/ClickToEnter';
+import SEO from '../components/SEO';
 import { useAnalytics } from '../hooks/useAnalytics';
 
 const Profile = () => {
@@ -135,6 +136,15 @@ const Profile = () => {
 
     return (
         <ClickToEnter onEnter={handleEnter}>
+            {data?.profile && (
+                <SEO
+                    title={data.profile.username}
+                    description={data.profile.bio || `Check out ${data.profile.username}'s profile on Vynn.`}
+                    image={`${import.meta.env.VITE_VYNN_API_BASE || 'http://localhost:5001'}/api/og/profile/${username}`}
+                    url={`https://vynn.io/${username}`}
+                    type="profile"
+                />
+            )}
             <ProfileRenderer data={data} trackClick={trackClick} isEntered={isEntered} />
         </ClickToEnter>
     );

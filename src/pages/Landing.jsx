@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import SEO from '../components/SEO';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
@@ -26,6 +27,7 @@ const Landing = () => {
 
     return (
         <Layout contentStyle={{ paddingBottom: 0, paddingLeft: 0, paddingRight: 0 }}>
+            <SEO />
             <ParticleBackground />
 
             {/* --- Hero Section --- */}
