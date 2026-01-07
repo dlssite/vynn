@@ -94,33 +94,59 @@ const Signup = () => {
     }, [formData.username]);
 
 
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+   const handleChange = (e) => {
+  let value = e.target.value;
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  if (e.target.name === 'username') {
+    value = value
+      .toLowerCase()
+      .replace(/\s+/g, '');
+  }
 
-        if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
-            return toast.error('Please fix username errors');
-        }
+  setFormData({ ...formData, [e.target.name]: value });
+};
 
-        if (formData.password !== formData.confirmPassword) {
-            return toast.error('Passwords do not match');
-        }
 
-        setLoading(true);
-        try {
-            await signup(formData.email, formData.password, formData.username, formData.referralCode);
-            navigate('/account');
-        } catch (error) {
-            console.error(error);
-            const message = error.response?.data?.error || 'Failed to create account';
-            toast.error(message);
-        } finally {
-            setLoading(false);
-        }
-    };
+   const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
+    return toast.error('Please fix username errors');
+  }
+
+  if (formData.password !== formData.confirmPassword) {
+    return toast.error('Passwords do not match');
+  }
+
+  setLoading(true);
+  try {
+    const cleanEmail = formData.email.trim().toLowerCase();
+    const cleanUsername = formData.username.trim().toLowerCase();
+    const cleanReferral = formData.referralCode?.trim() || '';
+
+    await signup(
+      cleanEmail,
+      formData.password,
+      cleanUsername,
+      cleanReferral
+    );
+
+    navigate('/account');
+  } catch (error) {
+    console.error(error);
+
+    const message =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.response?.data?.errors?.[0]?.msg ||
+      'Failed to create account';
+
+    toast.error(message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
     const inputStyle = {
         width: '100%',
@@ -164,6 +190,8 @@ const Signup = () => {
                                 <input
                                     type="text"
                                     name="username"
+                                    autoCapitalize="none"
+                                    autoCorrect="off"
                                     value={formData.username}
                                     onChange={handleChange}
                                     style={{
