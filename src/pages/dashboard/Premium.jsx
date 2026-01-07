@@ -1,8 +1,44 @@
-import { FaCheck, FaStar, FaBriefcase, FaUserShield, FaMagic, FaChartBar, FaGlobeAmericas, FaMinus } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { FaCheck, FaStar, FaBriefcase, FaUserShield, FaMagic, FaChartBar, FaGlobeAmericas, FaMinus, FaClock, FaInfinity, FaCheckCircle } from 'react-icons/fa';
 import Button from '../../components/Button';
 import { motion } from 'framer-motion';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
 const Premium = () => {
+    const { user: authUser } = useAuth();
+    const [profileUser, setProfileUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await api.get('/profiles/@me');
+                setProfileUser(res.data.user);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchUser();
+    }, []);
+
+    const user = profileUser || authUser;
+    const isPro = user?.isPremium;
+
+    // Calculate remaining time
+    const getRemainingTime = () => {
+        if (!user?.premiumUntil) return null;
+        const now = new Date();
+        const expiry = new Date(user.premiumUntil);
+        const diffTime = Math.abs(expiry - now);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    };
+
+    const remainingDays = getRemainingTime();
+
     const features = [
         { name: 'Custom Profile URL', free: true, pro: true },
         { name: 'Unlimited Links', free: true, pro: true },
@@ -20,7 +56,7 @@ const Premium = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                style={{ textAlign: 'center', marginBottom: '64px' }}
+                style={{ textAlign: 'center', marginBottom: '48px' }}
             >
                 <div style={{
                     display: 'inline-flex', alignItems: 'center', gap: '8px',
@@ -32,6 +68,39 @@ const Premium = () => {
                 }}>
                     <FaStar /> Vynn Premium
                 </div>
+
+                {/* Status Banner */}
+                {isPro && (
+                    <div className="mb-10 animate-fade-in p-1 bg-gradient-to-r from-orange-500/20 to-orange-400/10 rounded-3xl inline-block">
+                        <div className="bg-[#0a0a0a] rounded-[22px] px-8 py-4 border border-orange-500/30 flex flex-col md:flex-row items-center gap-6">
+                            <div className="text-left">
+                                <p className="text-secondary text-xs font-bold uppercase tracking-wider mb-1">Current Status</p>
+                                <h2 className="text-2xl font-black text-white flex items-center gap-2">
+                                    <FaCheckCircle className="text-orange-500" />
+                                    Active Member
+                                </h2>
+                            </div>
+                            <div className="h-10 w-[1px] bg-white/10 hidden md:block"></div>
+                            <div className="text-left">
+                                <p className="text-secondary text-xs font-bold uppercase tracking-wider mb-1">Time Remaining</p>
+                                <div className="text-xl font-bold text-white flex items-center gap-2">
+                                    {user.isLifetimePremium ? (
+                                        <>
+                                            <FaInfinity className="text-purple-400" />
+                                            <span>Lifetime Access</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FaClock className="text-blue-400" />
+                                            <span>{remainingDays ? `${remainingDays} Days` : 'Calculated...'}</span>
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <h1 style={{ fontSize: '3rem', fontWeight: '900', marginBottom: '24px', letterSpacing: '-0.02em' }}>
                     Level up your <span style={{ color: '#f97316' }}>identity.</span>
                 </h1>
@@ -47,7 +116,7 @@ const Premium = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
                     className="glass-panel"
-                    style={{ padding: '40px', borderRadius: '40px', display: 'flex', flexDirection: 'column' }}
+                    style={{ padding: '40px', borderRadius: '40px', display: 'flex', flexDirection: 'column', opacity: isPro ? 0.5 : 1 }}
                 >
                     <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '8px' }}>Basic</h2>
                     <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)', marginBottom: '32px' }}>Essential features for everyone.</p>
@@ -67,7 +136,9 @@ const Premium = () => {
                         ))}
                     </div>
 
-                    <Button variant="secondary" fullWidth style={{ padding: '16px' }}>Current Plan</Button>
+                    <Button variant="secondary" fullWidth style={{ padding: '16px' }} disabled={!isPro}>
+                        {isPro ? 'Downgrade' : 'Current Plan'}
+                    </Button>
                 </motion.div>
 
                 {/* Pro Plan */}
@@ -75,13 +146,12 @@ const Premium = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="glass-panel"
+                    className={`glass-panel ${isPro ? 'border-orange-500/50 shadow-[0_0_50px_rgba(249,115,22,0.2)]' : ''}`}
                     style={{
                         padding: '40px', borderRadius: '40px', position: 'relative', overflow: 'hidden',
                         display: 'flex', flexDirection: 'column',
                         background: 'linear-gradient(to bottom, rgba(249, 115, 22, 0.08), transparent)',
-                        borderColor: 'rgba(249, 115, 22, 0.3)',
-                        boxShadow: '0 0 50px rgba(249, 115, 22, 0.1)'
+                        borderColor: isPro ? 'rgba(249,115,22,0.5)' : 'rgba(249, 115, 22, 0.3)',
                     }}
                 >
                     <div style={{ position: 'absolute', top: '24px', right: '24px' }}>
@@ -90,7 +160,7 @@ const Premium = () => {
                             padding: '6px 12px', borderRadius: '999px', textTransform: 'uppercase',
                             boxShadow: '0 4px 12px rgba(249, 115, 22, 0.4)'
                         }}>
-                            Most Popular
+                            {isPro ? 'Active' : 'Most Popular'}
                         </div>
                     </div>
 
@@ -125,7 +195,9 @@ const Premium = () => {
                         ))}
                     </div>
 
-                    <Button fullWidth style={{ padding: '16px', boxShadow: '0 8px 24px rgba(249, 115, 22, 0.2)' }}>Upgrade to Pro</Button>
+                    <Button fullWidth style={{ padding: '16px', boxShadow: '0 8px 24px rgba(249, 115, 22, 0.2)' }} disabled={isPro}>
+                        {isPro ? 'Plan Active' : 'Upgrade to Pro'}
+                    </Button>
                 </motion.div>
             </div>
 

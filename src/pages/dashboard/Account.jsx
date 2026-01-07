@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import {
     FaUser, FaHashtag, FaEye, FaPen, FaCheckCircle,
     FaDiscord, FaShieldAlt, FaCog, FaCreditCard, FaArrowRight,
-    FaRegSmileBeam, FaRocket, FaCertificate
+    FaRegSmileBeam, FaRocket, FaCertificate, FaCopy
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -52,6 +52,11 @@ const Account = () => {
         }
     };
 
+    const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text);
+        toast.success('Link copied!');
+    };
+
     const displayUser = userData || authUser;
 
     return (
@@ -63,6 +68,28 @@ const Account = () => {
                     <p className="text-secondary text-sm flex items-center gap-2 mt-1">
                         Welcome back, <span className="text-white font-bold">{displayUser?.displayName || displayUser?.username}</span> <FaRegSmileBeam className="text-orange-500" />
                     </p>
+
+                    {/* Quick Access Links */}
+                    <div className="flex flex-wrap gap-3 mt-4">
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs transition-colors hover:bg-white/10">
+                            <span className="text-secondary uppercase text-[10px] font-bold tracking-wider">Profile</span>
+                            <code className="text-white font-mono">{window.location.host}/{displayUser?.username}</code>
+                            <button onClick={() => copyToClipboard(`${window.location.origin}/${displayUser?.username}`)} className="text-white/50 hover:text-white ml-1 p-1">
+                                <FaCopy />
+                            </button>
+                        </div>
+                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs transition-colors hover:bg-white/10">
+                            <span className="text-secondary uppercase text-[10px] font-bold tracking-wider">Referral</span>
+                            <code className="text-white font-mono">/r/{displayUser?.premiumReferralCode || displayUser?.referralCode || '...'}</code>
+                            <button
+                                onClick={() => copyToClipboard(`${window.location.origin}/r/${displayUser?.premiumReferralCode || displayUser?.referralCode}`)}
+                                className="text-white/50 hover:text-white ml-1 p-1"
+                                disabled={!displayUser?.referralCode}
+                            >
+                                <FaCopy />
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div className="flex gap-3 w-full md:w-auto">
                     <Link to="/premium" className="action-button-premium flex-1 md:flex-none justify-center">
