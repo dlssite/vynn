@@ -6,6 +6,7 @@ import { FaDiscord } from 'react-icons/fa';
 import Button from '../components/Button';
 import ParticleBackground from '../components/ParticleBackground';
 import toast from 'react-hot-toast';
+import api, { API_BASE_URL } from '../services/api';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -23,14 +24,6 @@ const Login = () => {
         } catch (error) {
             console.error(error);
             const message = error.response?.data?.error || 'Failed to login';
-            // The instruction implies ensuring specific error messages are shown.
-            // The existing code already attempts to get a specific message from the backend.
-            // If the intent was to always show the toast regardless of `error.handled`,
-            // the `if (!error.handled)` condition would be removed.
-            // However, without a clear instruction to remove it, and given the provided
-            // code snippet was malformed and out of context for Login.jsx,
-            // I will assume the current logic for displaying the toast is intended
-            // to remain as is, as it already prioritizes backend error messages.
             if (!error.handled) toast.error(message);
         } finally {
             setLoading(false);
@@ -115,7 +108,7 @@ const Login = () => {
                     </div>
 
                     <a
-                        href="/api/auth/discord"
+                        href={`${API_BASE_URL}/auth/discord`}
                         style={{
                             display: 'flex',
                             alignItems: 'center',

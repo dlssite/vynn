@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import Button from '../components/Button';
 import ParticleBackground from '../components/ParticleBackground';
 import toast from 'react-hot-toast';
-import api from '../services/api'; // Services api
+import api, { API_BASE_URL } from '../services/api'; // Services api
 import { FaCheckCircle, FaTimesCircle, FaSpinner, FaDiscord } from 'react-icons/fa';
 
 const Signup = () => {
@@ -33,6 +33,8 @@ const Signup = () => {
         if (refCode) {
             setFormData(prev => ({ ...prev, referralCode: refCode }));
             setIsReferralLocked(true);
+            // Save to local storage for persistence across Discord flow
+            localStorage.setItem('vynn_referrer', refCode);
             // Proactively validate
             api.post('/referral/validate', { code: refCode })
                 .then(res => {
@@ -94,58 +96,58 @@ const Signup = () => {
     }, [formData.username]);
 
 
-   const handleChange = (e) => {
-  let value = e.target.value;
+    const handleChange = (e) => {
+        let value = e.target.value;
 
-  if (e.target.name === 'username') {
-    value = value
-      .toLowerCase()
-      .replace(/\s+/g, '');
-  }
+        if (e.target.name === 'username') {
+            value = value
+                .toLowerCase()
+                .replace(/\s+/g, '');
+        }
 
-  setFormData({ ...formData, [e.target.name]: value });
-};
+        setFormData({ ...formData, [e.target.name]: value });
+    };
 
 
-   const handleSubmit = async (e) => {
-  e.preventDefault();
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-  if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
-    return toast.error('Please fix username errors');
-  }
+        if (usernameStatus === 'taken' || usernameStatus === 'invalid') {
+            return toast.error('Please fix username errors');
+        }
 
-  if (formData.password !== formData.confirmPassword) {
-    return toast.error('Passwords do not match');
-  }
+        if (formData.password !== formData.confirmPassword) {
+            return toast.error('Passwords do not match');
+        }
 
-  setLoading(true);
-  try {
-    const cleanEmail = formData.email.trim().toLowerCase();
-    const cleanUsername = formData.username.trim().toLowerCase();
-    const cleanReferral = formData.referralCode?.trim() || '';
+        setLoading(true);
+        try {
+            const cleanEmail = formData.email.trim().toLowerCase();
+            const cleanUsername = formData.username.trim().toLowerCase();
+            const cleanReferral = formData.referralCode?.trim() || '';
 
-    await signup(
-      cleanEmail,
-      formData.password,
-      cleanUsername,
-      cleanReferral
-    );
+            await signup(
+                cleanEmail,
+                formData.password,
+                cleanUsername,
+                cleanReferral
+            );
 
-    navigate('/account');
-  } catch (error) {
-    console.error(error);
+            navigate('/account');
+        } catch (error) {
+            console.error(error);
 
-    const message =
-      error.response?.data?.error ||
-      error.response?.data?.message ||
-      error.response?.data?.errors?.[0]?.msg ||
-      'Failed to create account';
+            const message =
+                error.response?.data?.error ||
+                error.response?.data?.message ||
+                error.response?.data?.errors?.[0]?.msg ||
+                'Failed to create account';
 
-    toast.error(message);
-  } finally {
-    setLoading(false);
-  }
-};
+            toast.error(message);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     const inputStyle = {
@@ -277,7 +279,7 @@ const Signup = () => {
                                             }
                                         }
                                     }}
-                                    placeholder="VYNN-XXXX or vynn+username"
+                                    placeholder="VYNN-XXXX or VYNN-USERNAME"
                                     style={{
                                         ...inputStyle,
                                         opacity: isReferralLocked ? 0.7 : 1,
@@ -325,7 +327,7 @@ const Signup = () => {
                     </div>
 
                     <a
-                        href="/api/auth/discord"
+                        href={`${API_BASE_URL}/auth/discord`}
                         style={{
                             display: 'flex',
                             alignItems: 'center',

@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+export const API_BASE_URL = import.meta.env.VITE_VYNN_API_PATH || '/api';
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_VYNN_API_PATH || '/api',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json'
     }

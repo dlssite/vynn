@@ -257,7 +257,7 @@ const Referrals = () => {
                         <div className="code-card" style={{ borderStyle: 'dashed', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.6 }}>
                             <FaStar className="text-accent mb-2" size={20} />
                             <h4 className="font-bold text-sm">Premium Code Locked</h4>
-                            <p className="stat-meta">Upgrade to Vynn+ to get a custom vynn+username code</p>
+                            <p className="stat-meta">Upgrade to Vynn+ to get a custom VYNN-USERNAME code</p>
                         </div>
                     )}
                 </div>

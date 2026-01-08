@@ -15,6 +15,8 @@ const ReferralRedirect = () => {
             } catch (error) {
                 console.error('Tracking error:', error);
             } finally {
+                // Save to local storage for persistence across Discord flow
+                localStorage.setItem('vynn_referrer', code);
                 // Always redirect to signup with the ref code
                 navigate(`/register?ref=${code}`);
             }

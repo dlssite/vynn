@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup'
 import LoginCallback from './pages/LoginCallback'
 import Profile from './pages/Profile'
+import Onboarding from './pages/Onboarding'
 import ProtectedRoute from './components/ProtectedRoute'
 
 // Dashboard Modules
@@ -31,6 +32,11 @@ function App() {
             <Route path="/register" element={<Signup />} />
             <Route path="/signup" element={<Navigate to="/register" replace />} />
             <Route path="/r/:code" element={<ReferralRedirect />} />
+            <Route path="/onboarding" element={
+                <ProtectedRoute>
+                    <Onboarding />
+                </ProtectedRoute>
+            } />
 
             {/* Dashboard Routes (Command Center) */}
             <Route path="/dashboard" element={<Navigate to="/account" replace />} />

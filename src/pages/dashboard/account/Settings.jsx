@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../context/AuthContext';
-import api, { referralAPI } from '../../../services/api';
+import api, { referralAPI, API_BASE_URL } from '../../../services/api';
 import Button from '../../../components/Button';
 import toast from 'react-hot-toast';
 import { FaAt, FaFingerprint, FaInfoCircle, FaEnvelope, FaTrash, FaUserSecret, FaDiscord, FaUserPlus, FaBolt, FaCoins, FaExclamationTriangle } from 'react-icons/fa';
@@ -78,6 +78,26 @@ const Settings = () => {
         } catch (error) {
             setFormData({ ...formData, isNSFW: !newValue }); // Revert on error
             toast.error('Failed to update setting');
+        }
+    };
+
+    const handleDeleteAccount = async () => {
+        if (!window.confirm('CRITICAL: This will permanently delete your Vynn account, profile, and all associated data. This action cannot be undone. Are you absolutely sure?')) return;
+
+        const confirmation = window.prompt('Please type "DELETE" to confirm:');
+        if (confirmation !== 'DELETE') return;
+
+        setLoading(true);
+        try {
+            await api.delete('/auth/account');
+            toast.success('Your account has been deleted.');
+            // logout and redirect
+            localStorage.removeItem('vynn_token');
+            window.location.href = '/';
+        } catch (error) {
+            toast.error(error.response?.data?.error || 'Failed to delete account');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -311,15 +331,18 @@ const Settings = () => {
                             ) : (
                                 <button
                                     type="button"
-                                    onClick={() => window.location.href = `/api/auth/discord?token=${localStorage.getItem('vynn_token')}`}
+                                    onClick={() => window.location.href = `${API_BASE_URL}/auth/discord?token=${localStorage.getItem('vynn_token')}`}
                                     style={{
                                         padding: '10px 24px', borderRadius: '12px',
                                         background: '#5865F2', border: 'none',
-                                        color: 'white', fontSize: '0.875rem', fontWeight: 'bold',
-                                        cursor: 'pointer'
+                                        color: 'white', fontSize: '0.8125rem', fontWeight: 'bold',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
+                                        transition: '0.2s'
                                     }}
+                                    onMouseOver={e => e.currentTarget.style.background = '#4752C4'}
+                                    onMouseOut={e => e.currentTarget.style.background = '#5865F2'}
                                 >
-                                    Link Discord
+                                    <FaDiscord /> Link Discord
                                 </button>
                             )}
                         </div>
@@ -327,30 +350,32 @@ const Settings = () => {
                 </section>
 
                 {/* Danger Zone */}
-                <section style={{
-                    padding: '32px', borderRadius: '32px',
-                    border: '1px solid rgba(239, 68, 68, 0.1)',
-                    background: 'rgba(239, 68, 68, 0.02)'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyCenter: 'center' }}>
+                <section className="glass-panel" style={{ padding: '32px', borderRadius: '32px', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+                        <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem' }}>
                             <FaTrash style={{ margin: 'auto' }} />
                         </div>
                         <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#ef4444' }}>Danger Zone</h2>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                    <div style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)', borderRadius: '24px', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
                         <div>
                             <p style={{ fontWeight: 'bold', color: 'white', marginBottom: '4px' }}>Delete Account</p>
-                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', maxWidth: '400px' }}>Once you delete your account, there is no going back. All your pages, links, and analytics will be permanently erased.</p>
+                            <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>Permanently remove your account and all data. This cannot be undone.</p>
                         </div>
-                        <button style={{
-                            padding: '10px 24px', borderRadius: '12px',
-                            background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
-                            color: '#ef4444', fontSize: '0.875rem', fontWeight: 'bold',
-                            transition: 'all 0.2s'
-                        }} onMouseOver={e => { e.target.style.background = '#ef4444'; e.target.style.color = 'white' }} onMouseOut={e => { e.target.style.background = 'rgba(239, 68, 68, 0.1)'; e.target.style.color = '#ef4444' }}>
-                            Close Account
+                        <button
+                            type="button"
+                            onClick={handleDeleteAccount}
+                            style={{
+                                padding: '12px 24px', borderRadius: '12px',
+                                background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
+                                color: '#ef4444', fontSize: '0.875rem', fontWeight: 'bold',
+                                cursor: 'pointer', transition: '0.2s'
+                            }}
+                            onMouseOver={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'}
+                            onMouseOut={e => e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'}
+                        >
+                            Delete Account
                         </button>
                     </div>
                 </section>
