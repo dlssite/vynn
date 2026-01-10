@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
     FaEye, FaGlobe, FaMobileAlt, FaDesktop, FaClock,
-    FaChartLine, FaArrowUp, FaArrowDown, FaMapMarkerAlt, FaLink
+    FaChartLine, FaArrowUp, FaArrowDown, FaMapMarkerAlt, FaLink, FaDiscord
 } from 'react-icons/fa';
 import { motion } from 'framer-motion';
 import api from '../../../services/api';
@@ -99,7 +99,7 @@ const Analytics = () => {
             </div>
 
             {/* Quick Stats Grid */}
-            <div className="dash-grid grid-cols-1 md-cols-2 lg-cols-4 mb-8">
+            <div className="dash-grid grid-cols-1 md-cols-2 lg-cols-5 mb-8">
                 <MetricCard
                     label="Total Views" value={stats.totalViews}
                     change="" icon={FaEye} color="#3b82f6"
@@ -107,6 +107,10 @@ const Analytics = () => {
                 <MetricCard
                     label="Unique Visitors" value={stats.uniqueVisitors}
                     change="" icon={FaChartLine} color="#f97316"
+                />
+                <MetricCard
+                    label="Discord Joins" value={stats.discordJoins || '0'}
+                    change="" icon={FaDiscord} color="#5865F2"
                 />
                 <MetricCard
                     label="Avg. Session" value={stats.avgTime}
