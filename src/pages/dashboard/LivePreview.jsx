@@ -1,16 +1,23 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useDashboard } from '../../context/DashboardContext';
-import { FaMobileAlt, FaDesktop, FaExternalLinkAlt, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
+import { FaMobileAlt, FaDesktop, FaExternalLinkAlt, FaVolumeUp, FaVolumeMute, FaRedo } from 'react-icons/fa';
 import api from '../../services/api';
 import ProfileRenderer from '../../components/ProfileRenderer';
+import ClickToEnter from '../../components/ClickToEnter';
 
 const LivePreview = () => {
     const { user } = useAuth();
     const { profileData, liveConfig, loading, previewMuted, setPreviewMuted } = useDashboard();
     const [viewMode, setViewMode] = useState('mobile');
+    const [isEntered, setIsEntered] = useState(true);
 
     const profileUrl = user ? `/${user.username}` : '/';
+
+    // Reset entrance when liveConfig changes (optional) or manual
+    const handleResetEntry = () => {
+        setIsEntered(false);
+    };
 
     // Merge live config with fetched data
     const previewData = useMemo(() => {
@@ -26,11 +33,35 @@ const LivePreview = () => {
         };
     }, [profileData, liveConfig]);
 
+    const EntranceWrapper = ({ children }) => {
+        if (isEntered) return children;
+
+        const theme = previewData?.profile?.themeConfig || {};
+
+        return (
+            <ClickToEnter
+                onEnter={() => setIsEntered(true)}
+                text={theme.entranceText}
+                font={theme.entranceFont}
+            >
+                {children}
+            </ClickToEnter>
+        );
+    };
+
     return (
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             <div className="preview-header">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-muted">Live Preview</h3>
                 <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                        onClick={handleResetEntry}
+                        className="btn-icon"
+                        title="Replay Entrance Screen"
+                        style={{ color: '#f97316' }}
+                    >
+                        <FaRedo />
+                    </button>
                     <button
                         onClick={() => setViewMode('mobile')}
                         className={`btn-icon ${viewMode === 'mobile' ? 'text-white bg-white/10' : ''}`}
@@ -76,13 +107,15 @@ const LivePreview = () => {
                             background: '#000'
                         }}>
                             {previewData ? (
-                                <ProfileRenderer
-                                    key={`preview-mobile-${JSON.stringify(liveConfig?.themeConfig?.colors)}`}
-                                    data={previewData}
-                                    previewMode={true}
-                                    isEntered={true}
-                                    initialMuted={previewMuted}
-                                />
+                                <EntranceWrapper>
+                                    <ProfileRenderer
+                                        key={`preview-mobile-${JSON.stringify(liveConfig?.themeConfig?.colors)}`}
+                                        data={previewData}
+                                        previewMode={true}
+                                        isEntered={isEntered}
+                                        initialMuted={previewMuted}
+                                    />
+                                </EntranceWrapper>
                             ) : (
                                 <div className="flex items-center justify-center h-full text-muted">
                                     Loading preview...
@@ -99,13 +132,15 @@ const LivePreview = () => {
                         position: 'relative'
                     }}>
                         {previewData && (
-                            <ProfileRenderer
-                                key={`preview-desktop-${JSON.stringify(liveConfig?.themeConfig?.colors)}`}
-                                data={previewData}
-                                previewMode={true}
-                                isEntered={true}
-                                initialMuted={previewMuted}
-                            />
+                            <EntranceWrapper>
+                                <ProfileRenderer
+                                    key={`preview-desktop-${JSON.stringify(liveConfig?.themeConfig?.colors)}`}
+                                    data={previewData}
+                                    previewMode={true}
+                                    isEntered={isEntered}
+                                    initialMuted={previewMuted}
+                                />
+                            </EntranceWrapper>
                         )}
                     </div>
                 )}

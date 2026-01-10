@@ -11,7 +11,8 @@ import {
     FaPalette, FaImage, FaMagic, FaVolumeUp, FaSave,
     FaMusic, FaUserCircle, FaMousePointer,
     FaCrown, FaDiscord, FaAdjust, FaSun, FaBolt, FaLayerGroup,
-    FaBan, FaCloudRain, FaSnowflake, FaTv, FaFilm, FaShoppingCart, FaHistory
+    FaBan, FaCloudRain, FaSnowflake, FaTv, FaFilm, FaShoppingCart, FaHistory,
+    FaDoorOpen, FaFont, FaBorderAll
 } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import ForgeModal from '../../components/ForgeModal/ForgeModal';
@@ -157,6 +158,12 @@ const Design = () => {
         },
         cursorUrl: '',
         frame: null,
+        layout: {
+            borderWidth: 1,
+            borderColor: 'rgba(255,255,255,0.1)',
+            borderColor2: 'rgba(255,255,255,0.1)',
+            borderRadius: 32
+        },
         presence: {
             discord: false,
             type: 'user',
@@ -167,44 +174,52 @@ const Design = () => {
     const handleVerifyServer = async () => {
         if (!config.presence.serverId) return;
 
-        let serverId = config.presence.serverId;
-        // Parse invite link if provided
+        let serverId = config.presence.serverId.trim();
+
+        // Robust Invite Parsing
+        // Handles: https://discord.gg/code, http://discord.gg/code/, discord.gg/code, code
         if (serverId.includes('discord.gg/') || serverId.includes('discord.com/invite/')) {
-            serverId = serverId.split('/').pop();
+            // Remove trailing slashes first
+            serverId = serverId.replace(/\/$/, '').split('/').pop();
         }
 
         setIsServerInfoLoading(true);
         try {
+            console.log("Verifying server:", serverId);
             const res = await api.get(`/discord/server/${serverId}`);
-            // Save the resolved ID back to state
-            const finalId = res.data.id;
 
-            // Create the new config object for persistence
+            // CRITICAL: We save the working serverId (invite or ID) instead of the resolved Snowflake ID
+            // This ensures the widget can fetch it again reliably using the same identifier.
+            const workingId = serverId;
+
+            // Updated config with the new server details
             const updatedConfig = {
                 ...config,
                 presence: {
                     ...config.presence,
-                    serverId: finalId,
+                    serverId: workingId, // Use the identifier that successfully resolved
                     type: 'server',
                     discord: true
                 }
             };
 
+            // 1. Update local state immediately
             setConfig(updatedConfig);
 
-            // AUTO-PERSISTENCE: Save immediately to profile
-            console.log("Saving Discord config:", updatedConfig);
+            // 2. Persist to Backend
             await api.put('/profiles/@me', {
                 themeConfig: updatedConfig,
-                frame: updatedConfig.frame
+                frame: config.frame
             });
 
-            // CRITICAL: Sync Global Context Immediately
+            // 3. Sync Profile Data globally
             updateProfileData({ themeConfig: updatedConfig });
 
-            toast.success(`Protocol Linked & Saved: ${res.data.name}`);
+            toast.success(`Protocol Linked: ${res.data.name}`);
         } catch (error) {
-            toast.error('Server not found or bot not in server');
+            console.error("Verification failed:", error);
+            const msg = error.response?.data?.error || 'Server not found or bot not in server';
+            toast.error(msg);
         } finally {
             setIsServerInfoLoading(false);
         }
@@ -261,10 +276,13 @@ const Design = () => {
                     audio: deepMerge(prev.audio, backendConfig.audio),
                     appearance: deepMerge(prev.appearance, backendConfig.appearance),
                     presence: deepMerge(prev.presence, backendConfig.presence),
+                    layout: deepMerge(prev.layout, backendConfig.layout),
 
                     frame: profileData.profile.frame ? (typeof profileData.profile.frame === 'object' ? profileData.profile.frame._id : profileData.profile.frame) : null,
                     // Ensure cursor defaults if not present
-                    cursorUrl: backendConfig.cursorUrl !== undefined ? backendConfig.cursorUrl : prev.cursorUrl
+                    cursorUrl: backendConfig.cursorUrl !== undefined ? backendConfig.cursorUrl : prev.cursorUrl,
+                    entranceText: backendConfig.entranceText !== undefined ? backendConfig.entranceText : prev.entranceText,
+                    entranceFont: backendConfig.entranceFont !== undefined ? backendConfig.entranceFont : prev.entranceFont
                 };
             });
         }
@@ -551,6 +569,53 @@ const Design = () => {
 
                             <div className="dash-grid grid-cols-1 md:grid-cols-2 gap-8">
                                 <div className="form-group">
+                                    <label className="form-label mb-4 flex items-center gap-2">
+                                        <FaPalette className="text-orange-500" /> CARD BACKGROUND
+                                    </label>
+                                    <div className="flex gap-3">
+                                        <input
+                                            type="color"
+                                            className="w-12 h-12 rounded-xl bg-transparent border-none cursor-pointer p-0"
+                                            value={config.colors.cardBackground?.startsWith('rgba') ? '#ffffff' : config.colors.cardBackground}
+                                            onChange={(e) => updateNested('colors', 'cardBackground', e.target.value)}
+                                        />
+                                        <input
+                                            type="text"
+                                            className="vynn-input flex-1 text-[10px] uppercase font-black"
+                                            value={config.colors.cardBackground}
+                                            onChange={(e) => updateNested('colors', 'cardBackground', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <label className="form-label mb-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <FaPalette className="text-purple-500" /> CARD BACKGROUND 2
+                                        </div>
+                                        <span className="text-[8px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded-full font-black tracking-widest">PRO</span>
+                                    </label>
+                                    <div className="flex gap-3">
+                                        <input
+                                            type="color"
+                                            className="w-12 h-12 rounded-xl bg-transparent border-none cursor-pointer p-0"
+                                            value={config.colors.cardBackground2?.startsWith('rgba') ? '#ffffff' : config.colors.cardBackground2 || '#ffffff'}
+                                            onChange={(e) => updateNested('colors', 'cardBackground2', e.target.value)}
+                                        />
+                                        <input
+                                            type="text"
+                                            className="vynn-input flex-1 text-[10px] uppercase font-black"
+                                            value={config.colors.cardBackground2 || ''}
+                                            placeholder="SECONDARY COLOR"
+                                            onChange={(e) => updateNested('colors', 'cardBackground2', e.target.value)}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-[9px] text-muted mt-2">Adjust transparency using the opacity slider below. If both colors are set, a linear gradient is applied.</p>
+
+                            <div className="dash-grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="form-group">
                                     <div className="flex justify-between items-center mb-4">
                                         <label className="form-label !mb-0 flex items-center gap-2">
                                             <FaAdjust className="text-orange-500" /> OPACITY
@@ -585,6 +650,84 @@ const Design = () => {
                                             value={config.appearance.profileBlur}
                                             onChange={(e) => updateNested('appearance', 'profileBlur', parseInt(e.target.value))}
                                             style={{ '--plasma': `${(config.appearance.profileBlur / 50) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="dash-grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t border-white/5">
+                                <div className="form-group md:col-span-2">
+                                    <label className="form-label mb-4 flex items-center gap-2">
+                                        <FaPalette className="text-orange-500" /> BORDER GRADIENT
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="color"
+                                                className="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer p-0"
+                                                value={config.layout.borderColor.startsWith('rgba') ? '#ffffff' : config.layout.borderColor}
+                                                onChange={(e) => updateNested('layout', 'borderColor', e.target.value)}
+                                            />
+                                            <input
+                                                type="text"
+                                                className="vynn-input flex-1 text-[9px] uppercase font-black py-2 px-3"
+                                                value={config.layout.borderColor}
+                                                onChange={(e) => updateNested('layout', 'borderColor', e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="color"
+                                                className="w-10 h-10 rounded-lg bg-transparent border-none cursor-pointer p-0"
+                                                value={config.layout.borderColor2?.startsWith('rgba') ? '#ffffff' : config.layout.borderColor2 || '#ffffff'}
+                                                onChange={(e) => updateNested('layout', 'borderColor2', e.target.value)}
+                                            />
+                                            <input
+                                                type="text"
+                                                className="vynn-input flex-1 text-[9px] uppercase font-black py-2 px-3"
+                                                value={config.layout.borderColor2 || ''}
+                                                onChange={(e) => updateNested('layout', 'borderColor2', e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="form-group">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <label className="form-label !mb-0 flex items-center gap-2">
+                                            <FaBorderAll className="text-orange-500" /> WIDTH
+                                        </label>
+                                        <span className="text-[10px] font-black text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded">
+                                            {config.layout.borderWidth}PX
+                                        </span>
+                                    </div>
+                                    <div className="energy-core-wrapper">
+                                        <input
+                                            type="range" className="energy-core-slider"
+                                            min="0" max="10" step="1"
+                                            value={config.layout.borderWidth}
+                                            onChange={(e) => updateNested('layout', 'borderWidth', parseInt(e.target.value))}
+                                            style={{ '--plasma': `${(config.layout.borderWidth / 10) * 100}%` }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="form-group md:col-span-2">
+                                    <div className="flex justify-between items-center mb-4">
+                                        <label className="form-label !mb-0 flex items-center gap-2">
+                                            <FaBorderAll className="text-orange-500" /> CORNER RADIUS
+                                        </label>
+                                        <span className="text-[10px] font-black text-orange-500 bg-orange-500/10 px-2 py-0.5 rounded">
+                                            {config.layout.borderRadius}PX
+                                        </span>
+                                    </div>
+                                    <div className="energy-core-wrapper">
+                                        <input
+                                            type="range" className="energy-core-slider"
+                                            min="0" max="100" step="1"
+                                            value={config.layout.borderRadius}
+                                            onChange={(e) => updateNested('layout', 'borderRadius', parseInt(e.target.value))}
+                                            style={{ '--plasma': `${config.layout.borderRadius}%` }}
                                         />
                                     </div>
                                 </div>
@@ -673,13 +816,29 @@ const Design = () => {
 
                                 <div className="discord-mode-selector grid grid-cols-2 gap-2 p-1 bg-black/40 rounded-2xl mb-4 border border-white/5">
                                     <button
-                                        onClick={() => updateNested('presence', 'type', 'user')}
+                                        onClick={() => {
+                                            setConfig(prev => ({
+                                                ...prev,
+                                                presence: { ...prev.presence, type: 'user' }
+                                            }));
+                                        }}
                                         className={`mode-btn ${config.presence.type === 'user' ? 'active' : ''}`}
                                     >
                                         LIVE ACTIVITY
                                     </button>
                                     <button
-                                        onClick={() => updateNested('presence', 'type', 'server')}
+                                        onClick={() => {
+                                            setConfig(prev => ({
+                                                ...prev,
+                                                presence: {
+                                                    ...prev.presence,
+                                                    type: 'server',
+                                                    // Reset discord to false if switching to server mode without a linked server
+                                                    // This prevents the UI from locking the input prematurely
+                                                    discord: prev.presence.serverId ? prev.presence.discord : false
+                                                }
+                                            }));
+                                        }}
                                         className={`mode-btn ${config.presence.type === 'server' ? 'active' : ''}`}
                                     >
                                         SERVER SYNC
@@ -802,7 +961,57 @@ const Design = () => {
                             </div>
                         </div>
                     </motion.section>
-                </div>
+
+                    {/* Pod 5: Entrance Screen */}
+                    <motion.section
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="aesthetic-pod"
+                    >
+                        <div className="prism-glow" />
+                        <div className="forge-section-tag">Entrance Screen</div>
+
+                        <div className="space-y-8">
+                            <div className="form-group">
+                                <label className="form-label mb-4 flex items-center gap-2">
+                                    <FaDoorOpen className="text-orange-500" /> ENTRANCE TEXT
+                                </label>
+                                <input
+                                    type="text"
+                                    className="vynn-input w-full text-xs py-4 px-6 !border-white/5 hover:!border-orange-500/30 focus:!border-orange-500 transition-all bg-white/[0.02]"
+                                    placeholder="e.g. click to enter..."
+                                    value={config.entranceText}
+                                    onChange={(e) => updateNested(null, 'entranceText', e.target.value)}
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label className="form-label mb-4 flex items-center gap-2">
+                                    <FaFont className="text-orange-500" /> TEXT SYNERGY (FONT)
+                                </label>
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                    {[
+                                        { name: 'Inter', value: "'Inter', sans-serif" },
+                                        { name: 'Outfit', value: "'Outfit', sans-serif" },
+                                        { name: 'Courier', value: "'Courier New', monospace" },
+                                        { name: 'Roboto', value: "'Roboto Mono', monospace" },
+                                        { name: 'Playfair', value: "'Playfair Display', serif" },
+                                        { name: 'Unbounded', value: "'Unbounded', sans-serif" }
+                                    ].map(font => (
+                                        <button
+                                            key={font.name}
+                                            onClick={() => updateNested(null, 'entranceFont', font.value)}
+                                            className={`font-cell ${config.entranceFont === font.value ? 'active' : ''}`}
+                                            style={{ fontFamily: font.value }}
+                                        >
+                                            {font.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </motion.section>
+                </div >
 
                 <div className="dash-grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                     {/* Frames Inventory */}
@@ -846,34 +1055,36 @@ const Design = () => {
                     />
 
                 </div>
-            </div>
+            </div >
 
             {/* Floating Save Button Portal - Simplified for visibility */}
-            {createPortal(
-                <div
-                    style={{
-                        position: 'fixed',
-                        bottom: '32px',
-                        right: '32px',
-                        zIndex: 99999,
-                        pointerEvents: 'auto'
-                    }}
-                >
-                    <button
-                        onClick={handleSave}
-                        disabled={loading}
-                        className="w-16 h-16 rounded-full bg-orange-500 hover:bg-orange-600 text-white shadow-[0_0_30px_rgba(249,115,22,0.6)] flex items-center justify-center transition-all border-4 border-black/20 hover:scale-110 active:scale-95"
-                        title="Save Changes"
+            {
+                createPortal(
+                    <div
+                        style={{
+                            position: 'fixed',
+                            bottom: '32px',
+                            right: '32px',
+                            zIndex: 99999,
+                            pointerEvents: 'auto'
+                        }}
                     >
-                        {loading ? (
-                            <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                        ) : (
-                            <FaSave size={24} />
-                        )}
-                    </button>
-                </div>,
-                document.body
-            )}
+                        <button
+                            onClick={handleSave}
+                            disabled={loading}
+                            className="w-16 h-16 rounded-full bg-orange-500 hover:bg-orange-600 text-white shadow-[0_0_30px_rgba(249,115,22,0.6)] flex items-center justify-center transition-all border-4 border-black/20 hover:scale-110 active:scale-95"
+                            title="Save Changes"
+                        >
+                            {loading ? (
+                                <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            ) : (
+                                <FaSave size={24} />
+                            )}
+                        </button>
+                    </div>,
+                    document.body
+                )
+            }
 
             {/* Avatar Inventory */}
             <AssetPortfolio
@@ -884,7 +1095,7 @@ const Design = () => {
                 onSelect={(url) => applyAsset('avatar', url)}
                 getRarityColor={getRarityColor}
             />
-        </div>
+        </div >
 
 
     );

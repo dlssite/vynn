@@ -3,7 +3,28 @@ import { FaDiscord, FaUsers, FaArrowUp, FaGlobe } from 'react-icons/fa';
 import api from '../services/api';
 import { motion } from 'framer-motion';
 
-const DiscordServerWidget = ({ serverId, mode = 'profile' }) => {
+const StatusPulse = ({ color }) => (
+    <motion.div
+        animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.5, 0.8, 0.5]
+        }}
+        transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+        }}
+        style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: '50%',
+            backgroundColor: color,
+            zIndex: -1
+        }}
+    />
+);
+
+const DiscordServerWidget = ({ serverId, mode = 'profile', onJoinServer }) => {
     const [server, setServer] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -33,57 +54,162 @@ const DiscordServerWidget = ({ serverId, mode = 'profile' }) => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`discord-server-widget vynn-presence-vynn active-presence ${mode}`}
+            style={{
+                background: 'rgba(255, 255, 255, 0.03)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '16px',
+                padding: '20px',
+                position: 'relative',
+                overflow: 'hidden'
+            }}
         >
-            <div className="vynn-presence-header">
+            {/* Subtle Discord Blue Glow */}
+            <div style={{
+                position: 'absolute',
+                top: '-50%',
+                left: '-50%',
+                width: '200%',
+                height: '200%',
+                background: `radial-gradient(circle at center, #5865F208 0%, transparent 50%)`,
+                pointerEvents: 'none',
+                zIndex: 0
+            }} />
+
+            <div className="vynn-presence-header" style={{ position: 'relative', zIndex: 1 }}>
                 <div className="vynn-presence-avatar-wrap">
                     <img
                         src={server.icon || 'https://cdn.discordapp.com/embed/avatars/0.png'}
                         className="vynn-presence-avatar server-icon"
                         alt={server.name}
+                        style={{
+                            width: '48px',
+                            height: '48px',
+                            borderRadius: '14px',
+                            border: '2px solid rgba(255,255,255,0.1)'
+                        }}
                     />
-                    <div className="vynn-presence-status-dot online" />
+                    <div className="vynn-presence-status-dot online" style={{
+                        position: 'absolute',
+                        bottom: '-2px',
+                        right: '-2px',
+                        width: '14px',
+                        height: '14px',
+                        borderRadius: '50%',
+                        backgroundColor: '#23a55a',
+                        border: '3px solid #050505',
+                        boxShadow: '0 0 10px rgba(35, 165, 90, 0.5)'
+                    }}>
+                        <StatusPulse color="#23a55a" />
+                    </div>
                 </div>
 
-                <div className="vynn-presence-meta">
-                    <div className="vynn-presence-user">
-                        <span className="vynn-username truncate max-w-[150px]">{server.name}</span>
-                        <FaDiscord className="vynn-discord-icon" />
+                <div className="vynn-presence-meta" style={{ marginLeft: '12px', flex: 1 }}>
+                    <div className="vynn-presence-user" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="vynn-username truncate max-w-[150px]" style={{ fontWeight: 800, fontSize: '14px' }}>{server.name}</span>
+                        <FaDiscord className="vynn-discord-icon" style={{ opacity: 0.6, fontSize: '12px' }} />
                     </div>
-                    <div className="vynn-presence-status-text">
-                        OFFICIAL SERVER
+                    <div className="vynn-presence-status-text" style={{ fontSize: '10px', opacity: 0.6, fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                        OFFICIAL COMMUNITY
                     </div>
                 </div>
             </div>
 
-            <div className="server-stats-grid mt-4 grid grid-cols-2 gap-2">
-                <div className="server-stat-item">
-                    <div className="stat-icon-wrap"><FaUsers /></div>
+            <div className="server-stats-grid mt-5 grid grid-cols-2 gap-3" style={{ position: 'relative', zIndex: 1 }}>
+                <div className="server-stat-item" style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                }}>
+                    <div className="stat-icon-wrap" style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        background: 'rgba(255,255,255,0.05)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        color: 'rgba(255,255,255,0.6)'
+                    }}><FaUsers /></div>
                     <div className="stat-info">
-                        <div className="stat-value">{(server.memberCount || server.approximate_member_count)?.toLocaleString() || '---'}</div>
-                        <div className="stat-label">MEMBERS</div>
+                        <div className="stat-value" style={{ fontWeight: 800, fontSize: '13px' }}>{(server.memberCount || server.approximate_member_count)?.toLocaleString() || '---'}</div>
+                        <div className="stat-label" style={{ fontSize: '9px', opacity: 0.4, fontWeight: 700, letterSpacing: '0.05em' }}>MEMBERS</div>
                     </div>
                 </div>
-                <div className="server-stat-item">
-                    <div className="stat-icon-wrap online"><FaGlobe /></div>
+                <div className="server-stat-item" style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    padding: '12px',
+                    borderRadius: '12px',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px'
+                }}>
+                    <div className="stat-icon-wrap online" style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        background: 'rgba(35, 165, 90, 0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        color: '#23a55a'
+                    }}><FaGlobe /></div>
                     <div className="stat-info">
-                        <div className="stat-value">{(server.presence_count || server.approximate_presence_count)?.toLocaleString() || '---'}</div>
-                        <div className="stat-label">ONLINE</div>
+                        <div className="stat-value" style={{ fontWeight: 800, fontSize: '13px' }}>{(server.presence_count || server.approximate_presence_count)?.toLocaleString() || '---'}</div>
+                        <div className="stat-label" style={{ fontSize: '9px', opacity: 0.4, fontWeight: 700, letterSpacing: '0.05em' }}>ONLINE</div>
                     </div>
                 </div>
             </div>
 
-            <div className="server-footer-vynn mt-4 flex items-center justify-between">
-                <div className="boost-badge flex items-center gap-1.5 text-[9px] font-black text-pink-500 bg-pink-500/10 px-2 py-1 rounded-lg border border-pink-500/20">
-                    <FaArrowUp /> LVL {server.boostLevel || server.premium_tier || 0}
+            <div className="server-footer-vynn mt-5 flex items-center justify-between" style={{ position: 'relative', zIndex: 1 }}>
+                <div className="boost-badge" style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    fontSize: '10px',
+                    fontWeight: 900,
+                    color: '#ff73fa',
+                    background: 'rgba(255, 115, 250, 0.1)',
+                    padding: '6px 12px',
+                    borderRadius: '10px',
+                    border: '1px solid rgba(255, 115, 250, 0.2)',
+                    letterSpacing: '0.05em'
+                }}>
+                    <FaArrowUp style={{ fontSize: '8px' }} /> LVL {server.boostLevel || server.premium_tier || 0}
                 </div>
-                <a
+                <motion.a
+                    whileHover={{ scale: 1.05, background: '#5865F2' }}
+                    whileTap={{ scale: 0.95 }}
                     href={server.instant_invite || `https://discord.gg/${serverId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="join-server-btn text-[9px] font-black uppercase tracking-widest text-[#5865F2] hover:text-white transition-colors"
+                    className="join-server-btn"
+                    onClick={() => onJoinServer && onJoinServer(serverId, server.instant_invite || `https://discord.gg/${serverId}`, 'discord_server')}
+                    style={{
+                        fontSize: '10px',
+                        fontWeight: 900,
+                        color: '#fff',
+                        background: 'rgba(88, 101, 242, 0.2)',
+                        padding: '8px 16px',
+                        borderRadius: '10px',
+                        border: '1px solid rgba(88, 101, 242, 0.3)',
+                        letterSpacing: '0.1em',
+                        textDecoration: 'none',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                    }}
                 >
                     JOIN SERVER
-                </a>
+                </motion.a>
             </div>
         </motion.div>
     );

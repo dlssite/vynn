@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ClickToEnter = ({ onEnter, children, text = "click to enter..." }) => {
+const ClickToEnter = ({ onEnter, children, text = "click to enter...", font = "'Courier New', monospace" }) => {
     const [entered, setEntered] = useState(false);
 
     const handleEnter = () => {
@@ -34,10 +34,12 @@ const ClickToEnter = ({ onEnter, children, text = "click to enter..." }) => {
                             animate={{ opacity: 1 }}
                             transition={{ duration: 1.5, repeat: Infinity, repeatType: 'reverse' }}
                             style={{
-                                fontFamily: "'Courier New', monospace",
-                                fontSize: '14px',
+                                fontFamily: font,
+                                fontSize: '18px',
                                 letterSpacing: '0.1em',
-                                opacity: 0.7
+                                opacity: 0.8,
+                                textAlign: 'center',
+                                padding: '0 20px'
                             }}
                         >
                             {text}

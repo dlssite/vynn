@@ -41,13 +41,23 @@ export const DashboardProvider = ({ children }) => {
     const updateProfileData = (updates) => {
         setProfileData(prev => {
             if (!prev) return prev;
-            return {
+            const newData = {
                 ...prev,
                 profile: {
                     ...prev.profile,
                     ...updates
                 }
             };
+
+            // Sync LiveConfig if themeConfig or displayedBadges are updated
+            if (updates.themeConfig || updates.displayedBadges) {
+                setLiveConfig(prevConfig => ({
+                    ...prevConfig,
+                    ...updates
+                }));
+            }
+
+            return newData;
         });
     };
 

@@ -368,21 +368,6 @@
     overflow: hidden;
 }
 
-.prism-glass::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border: 1px solid transparent;
-    background: linear-gradient(90deg, var(--profile-primary), #3b82f6, #8b5cf6) border-box;
-    -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: destination-out;
-    mask-composite: exclude;
-    opacity: 0.5;
-    border-radius: inherit;
-}
-
 
 /* Avatar Frames (Unique Vynn) */
 .avatar-frame {
@@ -901,12 +886,12 @@
 
 /* Discord Protocol Restoration Styles */
 .discord-protocol-reveal {
-    margin-top: 24px;
+    margin-top: 12px;
     width: 100%;
 }
 
 .discord-server-widget {
-    margin-top: 12px;
+    margin-top: 8px;
     width: 100%;
 }
 
@@ -917,7 +902,7 @@
 
 .server-stats-grid {
     display: grid;
-    grid-template-cols: 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
     margin-top: 16px;
 }

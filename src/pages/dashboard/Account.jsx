@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import {
     FaUser, FaHashtag, FaEye, FaPen, FaCheckCircle,
     FaDiscord, FaShieldAlt, FaCog, FaCreditCard, FaArrowRight,
-    FaRegSmileBeam, FaRocket, FaCertificate, FaCopy
+    FaRegSmileBeam, FaRocket, FaCertificate, FaCopy, FaAward
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -191,6 +191,7 @@ const Account = () => {
 
                         <div className="flex flex-col gap-3">
                             <QuickLink to="/account/settings" icon={FaPen} label="Edit Identity" sub="Name, bio, and handle" />
+                            <QuickLink to="/account/badges" icon={FaAward} label="Badges & Showcase" sub="Manage your achievements" />
                             <QuickLink to="/account/settings" icon={FaShieldAlt} label="Privacy & Security" sub="Protect your account" />
                             <QuickLink to="/premium" icon={FaCreditCard} label="Vynn Premium" sub="Manage subscription" highlight />
                             <QuickLink to="/account/settings" icon={FaCog} label="System Preferences" sub="General platform settings" />

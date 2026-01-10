@@ -92,7 +92,6 @@ const Dashboard = () => {
         { id: 'profile', label: 'Profile', icon: FaUser },
         { id: 'links', label: 'Links', icon: FaLink },
         { id: 'theme', label: 'Theme', icon: FaPalette },
-        { id: 'badges', label: 'Badges', icon: FaTrophy },
         { id: 'settings', label: 'Settings', icon: FaCog },
     ]
 
@@ -292,7 +291,7 @@ const Dashboard = () => {
                             </motion.div>
                         )}
 
-                        {['theme', 'badges', 'settings'].includes(activeTab) && (
+                        {['theme', 'settings'].includes(activeTab) && (
                             <motion.div
                                 key="coming-soon"
                                 initial={{ opacity: 0, scale: 0.95 }}

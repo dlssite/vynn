@@ -802,6 +802,32 @@
     }
 }
 
+/* Font Cells for Forge */
+.font-cell {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 12px;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+}
+
+.font-cell:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.font-cell.active {
+    background: rgba(249, 115, 22, 0.1);
+    border-color: #f97316;
+    color: white;
+    box-shadow: 0 0 15px rgba(249, 115, 22, 0.2);
+}
+
 /* Charts & Bars */
 .chart-tooltip {
     background: #111;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaUser, FaLink, FaPalette, FaSignOutAlt, FaChevronDown, FaStar, FaLayerGroup, FaShoppingCart, FaHistory, FaUserPlus } from 'react-icons/fa';
+import { FaUser, FaLink, FaPalette, FaSignOutAlt, FaChevronDown, FaStar, FaLayerGroup, FaShoppingCart, FaHistory, FaUserPlus, FaAward } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 import LivePreview from './LivePreview';
 import './Dashboard.css';
@@ -22,10 +22,10 @@ const DashboardLayoutContent = ({ children }) => {
             subItems: [
                 { path: '/account', label: 'Overview' },
                 { path: '/account/analytics', label: 'Analytics' },
-                { path: '/account/badges', label: 'Badges' },
                 { path: '/account/settings', label: 'Settings' }
             ]
         },
+        { path: '/account/badges', label: 'Badges', icon: FaAward },
         { path: '/design', label: 'Customize', icon: FaPalette },
         { path: '/store', label: 'Store', icon: FaShoppingCart },
         { path: '/dashboard/referrals', label: 'Referrals', icon: FaUserPlus },

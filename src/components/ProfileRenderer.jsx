@@ -41,6 +41,18 @@ const socialIcons = {
     other: FaLink
 };
 
+const hexToRgb = (hex) => {
+    if (!hex) return '0, 0, 0';
+    if (hex.startsWith('rgba')) {
+        const match = hex.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+        return match ? `${match[1]}, ${match[2]}, ${match[3]}` : '0, 0, 0';
+    }
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ?
+        `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` :
+        '0, 0, 0';
+};
+
 const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = false, initialMuted = false }) => {
     const { user, profile } = data || {};
     const [audioMuted, setAudioMuted] = useState(initialMuted);
@@ -91,11 +103,18 @@ const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = fa
         '--profile-accent': colors.accent || '#FF8C00',
         '--profile-bg': colors.background || '#050505',
         '--profile-text': colors.text || '#ffffff',
-        '--card-bg-opacity': `rgba(0, 0, 0, ${theme.appearance?.profileOpacity ?? 0.5})`,
+        '--card-bg-raw': hexToRgb(colors.cardBackground || 'rgba(0, 0, 0, 0.5)'),
+        '--card-bg-raw-2': hexToRgb(colors.cardBackground2 || colors.cardBackground || 'rgba(0, 0, 0, 0.5)'),
+        '--card-bg-opacity': `rgba(var(--card-bg-raw), ${theme.appearance?.profileOpacity ?? 0.5})`,
+        '--card-bg-opacity-2': `rgba(var(--card-bg-raw-2), ${theme.appearance?.profileOpacity ?? 0.5})`,
+        '--card-bg-final': (colors.cardBackground2 && colors.cardBackground2 !== colors.cardBackground)
+            ? `linear-gradient(to bottom right, var(--card-bg-opacity), var(--card-bg-opacity-2))`
+            : `var(--card-bg-opacity)`,
         '--profile-blur': `${theme.appearance?.profileBlur ?? 0}px`,
-        '--border-radius': layout.borderRadius || '32px',
-        '--border-width': layout.borderWidth || '1px',
-        '--border-color': layout.borderColor || 'rgba(255,255,255,0.05)',
+        '--border-radius': `${layout.borderRadius ?? 32}px`,
+        '--border-width': `${layout.borderWidth ?? 1}px`,
+        '--border-color-1': layout.borderColor || 'rgba(255,255,255,0.05)',
+        '--border-color-2': layout.borderColor2 || layout.borderColor || 'rgba(255,255,255,0.05)',
         minHeight: previewMode ? '100%' : '100vh',
         width: '100%',
         position: 'relative',
@@ -252,9 +271,8 @@ const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = fa
                     className={`profile-card prism-glass ${theme.glowSettings?.badges ? 'glow-badges' : ''} ${theme.glowSettings?.avatar ? 'glow-avatar-card' : ''}`}
                     style={{
                         position: 'relative',
-                        background: 'var(--card-bg-opacity)',
+                        background: 'var(--card-bg-final)',
                         backdropFilter: `blur(var(--profile-blur))`,
-                        border: 'var(--border-width) solid var(--border-color)',
                         borderRadius: 'var(--border-radius)',
                         padding: '32px 24px',
                         textAlign: 'center',
@@ -262,6 +280,22 @@ const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = fa
                         overflow: 'hidden'
                     }}
                 >
+                    {/* Gradient Border Overlay */}
+                    {layout.borderWidth > 0 && (
+                        <div style={{
+                            position: 'absolute',
+                            inset: 0,
+                            padding: 'var(--border-width)',
+                            borderRadius: 'inherit',
+                            background: 'linear-gradient(to bottom right, var(--border-color-1), var(--border-color-2))',
+                            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                            WebkitMaskComposite: 'xor',
+                            maskComposite: 'exclude',
+                            pointerEvents: 'none',
+                            zIndex: 10
+                        }} />
+                    )}
+
                     {/* Views Redesign */}
                     {profile.views !== undefined && profile.showViewCount !== false && (
                         <div className="profile-view-counter">
@@ -335,13 +369,16 @@ const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = fa
                         </div>
 
                         {/* Badges Container */}
-                        {user.badges && user.badges.length > 0 && (
+                        {((profile.displayedBadges && profile.displayedBadges.length > 0) || (user.badges && user.badges.length > 0)) && (
                             <div style={{
                                 display: 'flex', flexWrap: 'wrap',
                                 justifyContent: 'center', gap: '6px',
                                 marginTop: '4px', maxWidth: '300px'
                             }}>
-                                {user.badges.slice(0, 6).map((badge, i) => {
+                                {(profile.displayedBadges && profile.displayedBadges.length > 0
+                                    ? profile.displayedBadges
+                                    : user.badges.slice(0, 6)
+                                ).map((badge, i) => {
                                     const IconComponent = socialIcons[badge.icon.toLowerCase()] || iconMap[badge.icon] || FaGem;
                                     return (
                                         <div
@@ -362,7 +399,7 @@ const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = fa
                                         </div>
                                     );
                                 })}
-                                {user.badges.length > 6 && (
+                                {(!profile.displayedBadges || profile.displayedBadges.length === 0) && user.badges.length > 6 && (
                                     <div style={{
                                         fontSize: '0.65rem', fontWeight: 900, opacity: 0.5,
                                         padding: '0 4px', background: 'rgba(255,255,255,0.05)',
@@ -443,7 +480,10 @@ const ProfileRenderer = ({ data, trackClick, isEntered = false, previewMode = fa
                 {theme.presence?.discord && (
                     <div className="discord-protocol-reveal">
                         {theme.presence?.type === 'server' && theme.presence?.serverId ? (
-                            <DiscordServerWidget serverId={theme.presence.serverId} />
+                            <DiscordServerWidget
+                                serverId={theme.presence.serverId}
+                                onJoinServer={trackClick}
+                            />
                         ) : user.discord ? (
                             <DiscordPresence username={user.username} id={user.discord.id} mode="profile" />
                         ) : null}

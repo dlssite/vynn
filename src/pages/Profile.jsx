@@ -135,7 +135,11 @@ const Profile = () => {
     }
 
     return (
-        <ClickToEnter onEnter={handleEnter}>
+        <ClickToEnter
+            onEnter={handleEnter}
+            text={data.profile.themeConfig?.entranceText}
+            font={data.profile.themeConfig?.entranceFont}
+        >
             {data?.profile && (
                 <SEO
                     title={data.profile.username}
