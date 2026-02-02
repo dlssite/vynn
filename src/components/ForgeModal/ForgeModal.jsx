@@ -46,37 +46,44 @@ const ForgeModal = ({
                 <div className="forge-modal-overlay" onClick={handleBackdropClick}>
                     <motion.div
                         ref={modalRef}
-                        initial={{ scale: 0.98, opacity: 0, y: -20 }}
-                        animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.98, opacity: 0, y: -20 }}
+                        initial={{ opacity: 0, y: 100 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 100 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
                         className="forge-modal-container"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Hidden Internal Input */}
+                        {/* Internal File Input */}
                         <input
                             type="file"
                             ref={internalFileRef}
                             onChange={(e) => {
                                 onUpload(e.target.files[0], assetName);
-                                setAssetName(''); // Reset after upload
+                                setAssetName('');
                             }}
-                            className="hidden-file-input"
+                            className="hidden"
                             style={{ display: 'none' }}
                             accept="image/*,video/*,audio/*"
                         />
 
-                        <div className="forge-modal-glow" />
+                        <div className="prism-glow" />
+                        <div className="forge-modal-drag-handle" />
 
                         <div className="forge-modal-content">
-                            {/* Header Section */}
+                            {/* Header: Identity & Stats */}
                             <div className="forge-modal-header">
-                                <div className="forge-status-badge">
-                                    <div className="status-dot" />
-                                    <span className="status-text">Asset Integration</span>
+                                <div className="header-left">
+                                    <div className="forge-status-badge">
+                                        <div className="status-dot" />
+                                        <span>INTEGRATION ACTIVE</span>
+                                    </div>
+                                    <h2 className="forge-modal-title">
+                                        Forge {data.label} <FaBolt className="text-orange-500 ml-2" />
+                                    </h2>
                                 </div>
 
                                 <div className="forge-vault-stats">
-                                    <div className="vault-label">Vault Space</div>
+                                    <div className="vault-label">Vault Capacity</div>
                                     <div className="vault-meter-pill">
                                         <div className="vault-meter-bar">
                                             <motion.div
@@ -90,142 +97,137 @@ const ForgeModal = ({
                                 </div>
                             </div>
 
-                            {/* Title Section */}
-                            <div className="forge-modal-title-area">
-                                <h2 className="forge-modal-title">
-                                    Forge {data.label} <FaBolt style={{ color: '#FF4500' }} />
-                                </h2>
-                                <p className="forge-modal-subtitle">
-                                    Choose your entry vector to sync this asset into your identity shell.
-                                </p>
-                            </div>
+                            <p className="forge-modal-subtitle">
+                                Sculpt your identity by syncing new binaries or linking remote source blueprints.
+                            </p>
 
-                            {/* Action Container */}
                             <div className="forge-action-grid">
+                                {/* Discord Section */}
                                 {relevantDiscordAssets.length > 0 && (
-                                    <div className="discord-assets-section">
-                                        <div className="discord-section-label">
-                                            <FaDiscord className="discord-icon" /> DISCORD PROTOCOL SYNC
+                                    <section className="forge-section">
+                                        <div className="section-header">
+                                            <FaDiscord className="text-[#5865F2]" />
+                                            <span>Discord Protocol Sync</span>
                                         </div>
-                                        <div className="discord-assets-grid">
+                                        <div className="discord-assets-grid no-scrollbar">
                                             {relevantDiscordAssets.map((asset, idx) => (
                                                 <button
                                                     key={idx}
                                                     onClick={() => handleSelectDiscordAsset(asset.url)}
-                                                    className={`discord-asset-tile ${data.link === asset.url ? 'active' : ''}`}
+                                                    className={`discord-asset-card ${data.link === asset.url ? 'active' : ''}`}
                                                 >
                                                     <div className="asset-preview">
                                                         <img src={asset.url} alt={asset.name} />
                                                     </div>
-                                                    <div className="asset-label">{asset.name}</div>
+                                                    <span className="asset-name">{asset.name}</span>
+                                                    {data.link === asset.url && <div className="active-glow" />}
                                                 </button>
                                             ))}
                                         </div>
-                                    </div>
+                                    </section>
                                 )}
 
-                                {/* Name Input Area */}
-                                <div className="forge-interaction-area" style={{ marginBottom: '20px' }}>
-                                    <div className="forge-input-wrapper">
-                                        <input
-                                            type="text"
-                                            placeholder="Asset Name (e.g. My Favorite Beat)"
-                                            className="forge-input"
-                                            value={assetName}
-                                            onChange={(e) => setAssetName(e.target.value)}
-                                        />
-                                        <div className="input-icon" style={{ fontSize: '10px', opacity: 0.5 }}>NAME</div>
+                                {/* Main Interaction Area */}
+                                <div className="space-y-6">
+                                    <div className="forge-input-group">
+                                        <label className="input-label">Identity Tag (Optional)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="e.g. Midnight Cyber Synth"
+                                                className="vynn-input w-full"
+                                                value={assetName}
+                                                onChange={(e) => setAssetName(e.target.value)}
+                                            />
+                                            <div className="input-indicator">NAME</div>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {/* Device Upload Tile */}
-                                <button
-                                    disabled={uploading || (stats?.uploadCount >= stats?.limit)}
-                                    onClick={() => internalFileRef.current?.click()}
-                                    className="forge-upload-tile"
-                                >
-                                    <div className="tile-accent-blur" />
-                                    <div className="tile-content">
-                                        <div className="tile-info">
-                                            <div className="tile-icon-wrapper">
+                                    {/* Upload Trigger */}
+                                    <button
+                                        disabled={uploading || (stats?.uploadCount >= stats?.limit)}
+                                        onClick={() => internalFileRef.current?.click()}
+                                        className="forge-upload-pod group"
+                                    >
+                                        <div className="pod-glow" />
+                                        <div className="pod-content">
+                                            <div className="pod-icon">
                                                 <FaUpload />
                                             </div>
-                                            <div>
-                                                <div className="tile-label">Forge Binary</div>
-                                                <div className="tile-desc">Upload from local device storage</div>
+                                            <div className="text-left">
+                                                <div className="pod-title italic">Forge Binary</div>
+                                                <div className="pod-desc">Inject local file into the vault</div>
                                             </div>
                                         </div>
                                         {stats?.uploadCount >= stats?.limit && (
-                                            <div className="limit-badge">Limit Hit</div>
+                                            <div className="pod-limit-tag">MAXED</div>
                                         )}
-                                    </div>
-                                </button>
+                                    </button>
 
-                                {/* Separator */}
-                                <div className="forge-separator">
-                                    <div className="separator-line">••••••••••••••••••••••••••••••••••••••••••••</div>
-                                    <div className="separator-text">OR PROTOCOL LINK</div>
-                                </div>
-
-                                {/* Link Interaction Area */}
-                                <div className="forge-interaction-area">
-                                    <div className="forge-input-wrapper">
-                                        <input
-                                            type="text"
-                                            placeholder="Enter source blueprint URL..."
-                                            className="forge-input"
-                                            value={data.link}
-                                            onChange={(e) => setData({ ...data, link: e.target.value })}
-                                        />
-                                        <FaExternalLinkAlt className="input-icon" />
+                                    <div className="forge-divider">
+                                        <span className="divider-text">OR SOURCE LINK</span>
                                     </div>
 
-                                    <div className="forge-button-group">
-                                        <button
-                                            onClick={onClose}
-                                            className="forge-btn forge-btn-cancel"
-                                        >
-                                            Cancel Sync
+                                    <div className="forge-input-group">
+                                        <label className="input-label">Protocol Blueprint URL</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Enter source URL (Images, Gifs, Mp4/Mp3)..."
+                                                className="vynn-input w-full pr-12"
+                                                value={data.link}
+                                                onChange={(e) => setData({ ...data, link: e.target.value })}
+                                            />
+                                            <FaExternalLinkAlt className="absolute right-5 top-1/2 -translate-y-1/2 text-muted text-xs opacity-50" />
+                                        </div>
+                                    </div>
+
+                                    <div className="forge-button-container flex gap-4">
+                                        <button onClick={onClose} className="forge-btn-secondary flex-1">
+                                            DECLINE
                                         </button>
                                         <button
                                             onClick={onSubmit}
                                             disabled={!data.link || uploading}
-                                            className="forge-btn forge-btn-submit"
+                                            className="forge-btn-primary flex-[2]"
                                         >
-                                            Engage Link Bridge
+                                            ENGAGE LINK BRIDGE
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Syncing State Overlay */}
-                        {uploading && (
-                            <div className="forge-sync-overlay">
-                                <div className="sync-loader-wrapper">
-                                    <motion.div
-                                        animate={{ rotate: 360 }}
-                                        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                        className="sync-circle"
-                                    />
-                                    <motion.div
-                                        animate={{ scale: [1, 1.2, 1] }}
-                                        transition={{ duration: 1.5, repeat: Infinity }}
-                                        className="sync-icon"
-                                    >
-                                        <FaBolt />
-                                    </motion.div>
-                                </div>
-                                <div className="sync-text">Syncing Binary...</div>
-                                <div className="sync-progress-line">
-                                    <motion.div
-                                        animate={{ x: [-200, 200] }}
-                                        transition={{ duration: 1, repeat: Infinity }}
-                                        className="sync-progress-glow"
-                                    />
-                                </div>
-                            </div>
-                        )}
+                        {/* Loading Overlay */}
+                        <AnimatePresence>
+                            {uploading && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="forge-sync-overlay"
+                                >
+                                    <div className="sync-core">
+                                        <div className="sync-spinner">
+                                            <motion.div
+                                                animate={{ rotate: 360 }}
+                                                transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                                className="spinner-outer"
+                                            />
+                                            <FaBolt className="spinner-icon text-orange-500" />
+                                        </div>
+                                        <div className="sync-text">SYNCHRONIZING BINARY</div>
+                                        <div className="sync-line">
+                                            <motion.div
+                                                animate={{ x: [-100, 100] }}
+                                                transition={{ duration: 1.5, repeat: Infinity }}
+                                                className="sync-glow"
+                                            />
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </motion.div>
                 </div>
             )}

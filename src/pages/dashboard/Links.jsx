@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fa';
 import { SiRoblox, SiCashapp } from "react-icons/si";
 import { motion, AnimatePresence } from 'framer-motion';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const SOCIAL_PLATFORMS = [
     { id: 'discord', label: 'Discord', icon: FaDiscord, color: '#5865F2', placeholder: 'Discord Invite URL' },
@@ -48,6 +49,9 @@ const Links = () => {
     const [activeSocial, setActiveSocial] = useState(null); // { platform, url }
     const [socialUrl, setSocialUrl] = useState('');
 
+    // Modal States
+    const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null });
+
     useEffect(() => {
         fetchData();
     }, []);
@@ -80,14 +84,15 @@ const Links = () => {
         }
     };
 
-    const handleDeleteLink = async (id) => {
-        if (!window.confirm('Delete this link?')) return;
+    const handleDeleteLink = async () => {
+        const { id } = confirmDelete;
+        const t = toast.loading('Removing link...');
         try {
             const res = await api.delete(`/profiles/@me/links/${id}`);
             setLinks(res.data.links);
-            toast.success('Link deleted');
+            toast.success('Link deleted', { id: t });
         } catch (error) {
-            toast.error('Failed to delete link');
+            toast.error('Failed to delete link', { id: t });
         }
     };
 
@@ -318,7 +323,7 @@ const Links = () => {
                         </div>
 
                         <button
-                            onClick={() => handleDeleteLink(link._id)}
+                            onClick={() => setConfirmDelete({ open: true, id: link._id })}
                             className="btn-icon"
                             style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.05)' }}
                             title="Delete"
@@ -335,6 +340,15 @@ const Links = () => {
                     background: rgba(255,255,255,0.1) !important;
                 }
             `}</style>
+
+            <ConfirmModal
+                isOpen={confirmDelete.open}
+                onClose={() => setConfirmDelete({ ...confirmDelete, open: false })}
+                onConfirm={handleDeleteLink}
+                title="Delete Link"
+                message="Are you sure you want to remove this link from your profile? This action cannot be undone."
+                variant="danger"
+            />
         </div>
     );
 };

@@ -114,6 +114,7 @@ const LivePreview = () => {
                                         previewMode={true}
                                         isEntered={isEntered}
                                         initialMuted={previewMuted}
+                                        forceMobile={true}
                                     />
                                 </EntranceWrapper>
                             ) : (

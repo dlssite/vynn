@@ -9,8 +9,6 @@ const Navbar = () => {
     const { isAuthenticated, logout } = useAuth();
     const location = useLocation();
 
-    // Only show navbar on main pages, or maybe show on all but auth?
-    // User requested "superior design", often auth pages have no nav or minimal nav.
     const isAuthPage = ['/login', '/register'].includes(location.pathname);
     if (isAuthPage) return null;
 
@@ -21,21 +19,21 @@ const Navbar = () => {
     ];
 
     return (
-        <nav className="fixed w-full px-6 py-6" style={{ top: 0, zIndex: 999 }}>
+        <nav className="navbar">
             <div className="container">
-                <div className="glass-panel flex items-center justify-between" style={{ borderRadius: 'var(--radius-full)', padding: '16px 24px' }}>
+                <div className="navbar-inner glass-panel">
                     {/* Logo */}
-                    <Link to="/" className="text-xl font-bold" style={{ letterSpacing: '-0.05em' }}>
-                        VYNN<span className="text-accent">.</span>
+                    <Link to="/" className="navbar-logo">
+                        VYNN<span>.</span>
                     </Link>
 
                     {/* Desktop Links */}
-                    <div className="nav-desktop flex items-center gap-8">
+                    <div className="navbar-nav desktop-only">
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 to={link.path}
-                                className="text-sm font-medium text-secondary hover:text-white transition-colors"
+                                className="nav-link"
                             >
                                 {link.name}
                             </Link>
@@ -43,25 +41,20 @@ const Navbar = () => {
                     </div>
 
                     {/* CTA */}
-                    <div className="nav-desktop flex items-center gap-4">
+                    <div className="navbar-actions desktop-only">
                         {isAuthenticated ? (
                             <>
                                 <Link to="/dashboard">
                                     <Button size="sm">Dashboard</Button>
                                 </Link>
-                                <span
-                                    onClick={logout}
-                                    className="text-xs font-medium text-secondary hover:text-white transition-colors cursor-pointer opacity-70"
-                                >
+                                <span onClick={logout} className="nav-link-logout">
                                     Logout
                                 </span>
                             </>
                         ) : (
                             <>
-                                <Link to="/login">
-                                    <span className="text-sm font-medium text-secondary hover:text-white transition-colors cursor-pointer">
-                                        Login
-                                    </span>
+                                <Link to="/login" className="nav-link-login">
+                                    Login
                                 </Link>
                                 <Link to="/register">
                                     <Button size="sm">Get Started</Button>
@@ -72,7 +65,7 @@ const Navbar = () => {
 
                     {/* Mobile Menu Button */}
                     <button
-                        className="nav-mobile-toggle text-primary"
+                        className="mobile-toggle"
                         onClick={() => setIsOpen(!isOpen)}
                     >
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -93,35 +86,34 @@ const Navbar = () => {
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -20 }}
-                        className="absolute glass-panel flex flex-col gap-4"
-                        style={{ top: '90px', left: '24px', right: '24px', padding: '24px', borderRadius: 'var(--radius-lg)' }}
+                        className="mobile-menu glass-panel"
                     >
                         {navLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 to={link.path}
-                                className="text-lg font-medium text-secondary"
+                                className="mobile-link"
                                 onClick={() => setIsOpen(false)}
                             >
                                 {link.name}
                             </Link>
                         ))}
-                        <div style={{ height: '1px', background: 'rgba(255,255,255,0.1)', margin: '8px 0' }} />
+                        <div className="mobile-divider" />
                         {isAuthenticated ? (
                             <>
-                                <Link to="/dashboard" onClick={() => setIsOpen(false)} className="text-lg font-medium">
+                                <Link to="/dashboard" onClick={() => setIsOpen(false)} className="mobile-link highlight">
                                     Dashboard
                                 </Link>
                                 <span
                                     onClick={() => { logout(); setIsOpen(false); }}
-                                    className="text-lg font-medium text-secondary"
+                                    className="mobile-link logout"
                                 >
                                     Logout
                                 </span>
                             </>
                         ) : (
                             <>
-                                <Link to="/login" onClick={() => setIsOpen(false)} className="text-lg font-medium">
+                                <Link to="/login" onClick={() => setIsOpen(false)} className="mobile-link">
                                     Login
                                 </Link>
                                 <Link to="/register" onClick={() => setIsOpen(false)}>

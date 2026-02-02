@@ -22,6 +22,15 @@ const LoginCallback = () => {
     const handleLogin = async (token) => {
         try {
             await loginWithToken(token);
+
+            // Handle SSO Redirect
+            const ssoRedirect = sessionStorage.getItem('vynn_sso_redirect');
+            if (ssoRedirect) {
+                sessionStorage.removeItem('vynn_sso_redirect');
+                window.location.href = `${ssoRedirect}/login/callback?token=${token}`;
+                return;
+            }
+
             navigate('/account');
         } catch (error) {
             console.error('Login error:', error);

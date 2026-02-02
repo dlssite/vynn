@@ -3,7 +3,6 @@ import { useParams, Link } from 'react-router-dom'
 import { FaExclamationTriangle } from 'react-icons/fa'
 import api from '../services/api'
 import ProfileRenderer from '../components/ProfileRenderer'
-import './Profile.css'
 
 import ClickToEnter from '../components/ClickToEnter';
 import SEO from '../components/SEO';

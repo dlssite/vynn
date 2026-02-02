@@ -1,469 +1,410 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import SEO from '../components/SEO';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Layout from '../components/Layout';
 import Button from '../components/Button';
 import ParticleBackground from '../components/ParticleBackground';
-import { FaDiscord, FaBolt, FaCrown, FaUsers, FaPalette, FaShieldAlt } from 'react-icons/fa';
+import {
+    FaDiscord, FaBolt, FaCrown, FaUsers, FaPalette, FaShieldAlt,
+    FaGlobe, FaGem, FaRocket, FaCode, FaPaintBrush, FaLock, FaChartLine,
+    FaFingerprint, FaLink, FaUserAstronaut, FaExchangeAlt, FaSearch, FaEye, FaShareAlt, FaMobileAlt, FaVideo, FaTwitter, FaGithub,
+    FaCheckCircle, FaHashtag
+} from 'react-icons/fa';
 import { useAuth } from '../context/AuthContext';
 import { useConfig } from '../context/ConfigContext';
+import '../styles/Landing.css';
 
 const Landing = () => {
-    const { scrollYProgress } = useScroll();
     const { isAuthenticated } = useAuth();
     const { config } = useConfig();
-    const y = useTransform(scrollYProgress, [0, 1], [0, -50]);
 
-    // Scroll reveal animation variants
+    // Animation Variants
     const fadeInUp = {
         hidden: { opacity: 0, y: 30 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] } }
     };
 
     const staggerContainer = {
-        visible: { transition: { staggerChildren: 0.1 } }
+        visible: { transition: { staggerChildren: 0.15 } }
     };
 
     return (
-        <Layout contentStyle={{ paddingBottom: 0, paddingLeft: 0, paddingRight: 0 }}>
-            <SEO />
+        <Layout contentStyle={{ padding: 0 }}>
+            <SEO
+                title="Your identity, beautifully connected."
+                description="Your identity, beautifully connected. The comprehensive platform to consolidate your links, showcase your gaming stats, and grow your community in the Vynn ecosystem."
+                keywords={['Gaming Profile', 'Discord Server List', 'Bio Link', 'Social Hub', 'Streamer Tools']}
+                jsonLd={{
+                    "@context": "https://schema.org",
+                    "@type": "SoftwareApplication",
+                    "name": "Vynn",
+                    "url": "https://vynn.me",
+                    "applicationCategory": "SocialNetworkingApplication",
+                    "operatingSystem": "Web, iOS, Android",
+                    "offers": {
+                        "@type": "Offer",
+                        "price": "0",
+                        "priceCurrency": "USD",
+                        "seller": {
+                            "@type": "Organization",
+                            "name": "Vynn Inc"
+                        }
+                    },
+                    "description": "Your identity, beautifully connected. Vynn is the ultimate digital identity platform for creators and communities.",
+                    "aggregateRating": {
+                        "@type": "AggregateRating",
+                        "ratingValue": "4.8",
+                        "ratingCount": "3420"
+                    }
+                }}
+            />
             <ParticleBackground />
 
-            {/* --- Hero Section --- */}
-            <section className="relative flex flex-col items-center justify-center text-center" style={{ minHeight: '90vh', paddingTop: '60px' }}>
-                <motion.div
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={staggerContainer}
-                    style={{ position: 'relative', zIndex: 10 }}
-                >
-                    <motion.div variants={fadeInUp} style={{ marginBottom: '24px' }}>
-                        <span style={{
-                            background: 'rgba(255, 69, 0, 0.1)',
-                            border: '1px solid rgba(255, 69, 0, 0.2)',
-                            color: '#FF4500',
-                            padding: '8px 20px',
-                            borderRadius: '99px',
-                            fontSize: '0.8rem',
-                            fontWeight: 600,
-                            letterSpacing: '0.05em',
-                            textTransform: 'uppercase',
-                            boxShadow: '0 0 20px rgba(255, 69, 0, 0.15)'
-                        }}>
-                            Vynn 1.0 is Here
-                        </span>
-                    </motion.div>
-
-                    <motion.h1 variants={fadeInUp} className="text-3xl md:text-6xl font-bold" style={{ marginBottom: '24px', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
-                        <span style={{ color: 'white' }}>Your </span>
-                        <span className="text-gradient" style={{ fontSize: '1.1em' }}>identity,</span>
-                        <br />
-                        <span style={{ color: 'white' }}>beautifully connected.</span>
-                    </motion.h1>
-
-                    <motion.p variants={fadeInUp} className="text-lg text-secondary" style={{ maxWidth: '640px', margin: '0 auto 40px', lineHeight: 1.6 }}>
-                        The ultimate profile platform for Discord communities.
-                        Level up your presence with XP, badges, and next-gen customization.
-                    </motion.p>
-
-                    <motion.div variants={fadeInUp} className="flex justify-center gap-4" style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
-                        {isAuthenticated ? (
-                            <Link to="/dashboard" style={{ width: '100%', maxWidth: '280px' }}>
-                                <Button size="lg" fullWidth style={{ boxShadow: '0 0 30px rgba(255, 69, 0, 0.4)' }}>
-                                    <FaBolt style={{ marginRight: '10px' }} />
-                                    Go to Dashboard
-                                </Button>
-                            </Link>
-                        ) : (
-                            <>
-                                <Link to="/register">
-                                    <Button size="lg" style={{ boxShadow: '0 0 30px rgba(255, 69, 0, 0.4)' }}>
-                                        Claim Your Vynn
-                                    </Button>
-                                </Link>
-                                <Link to="/login">
-                                    <Button variant="outline" size="lg">
-                                        Member Login
-                                    </Button>
-                                </Link>
-                            </>
-                        )}
-                    </motion.div>
-                </motion.div>
-
-                {/* Hero Dashboard Preview (Abstract Mockup) */}
-                {/* Hero Dashboard Preview (Abstract Mockup) */}
-                <motion.div
-                    initial={{ opacity: 0, y: 100, rotateX: 20 }}
-                    animate={{ opacity: 1, y: 0, rotateX: 0 }}
-                    transition={{ duration: 1, delay: 0.5 }}
-                    style={{
-                        marginTop: '80px',
-                        width: '100%',
-                        maxWidth: '1000px',
-                        height: '500px',
-                        background: 'linear-gradient(180deg, rgba(20,20,20,0.8), rgba(10,10,10,1))',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '20px 20px 0 0',
-                        boxShadow: '0 -20px 60px rgba(255, 69, 0, 0.1)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        perspective: '1000px',
-                        zIndex: 5
-                    }}
-                >
-                    {/* Mock UI Elements */}
-                    <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', gap: '10px' }}>
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#EF4444' }} />
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#F59E0B' }} />
-                        <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10B981' }} />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', height: '100%' }}>
-                        <div style={{ borderRight: '1px solid rgba(255,255,255,0.05)', padding: '20px' }}>
-                            <div style={{ width: '60%', height: '20px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', marginBottom: '30px' }} />
-                            {[1, 2, 3, 4].map(i => (
-                                <div key={i} style={{ width: '100%', height: '30px', background: 'rgba(255,255,255,0.03)', borderRadius: '6px', marginBottom: '10px' }} />
-                            ))}
-                        </div>
-                        <div style={{ padding: '40px' }}>
-                            <div style={{ display: 'flex', gap: '20px', marginBottom: '40px' }}>
-                                <div style={{ width: '100px', height: '100px', borderRadius: '20px', background: 'linear-gradient(45deg, #FF4500, #FF8C00)' }} />
-                                <div>
-                                    <div style={{ width: '200px', height: '30px', background: 'rgba(255,255,255,0.1)', borderRadius: '6px', marginBottom: '10px' }} />
-                                    <div style={{ width: '140px', height: '20px', background: 'rgba(255,255,255,0.05)', borderRadius: '6px' }} />
-                                </div>
-                            </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} style={{ height: '120px', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }} />
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    {/* Overlay Gradient at bottom to blend */}
-                    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: '150px', background: 'linear-gradient(to top, #050505, transparent)' }} />
-                </motion.div>
-            </section>
-
-            {/* --- Visual Showcase Section (New) --- */}
-            <section style={{ padding: '0 0 100px', position: 'relative', overflow: 'hidden' }}>
-                <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '60px', flexDirection: 'column' }}>
-                    <div className="text-center" style={{ maxWidth: '800px' }}>
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Showcase Your Style</h2>
-                        <p className="text-secondary text-lg">
-                            From animated frames to exclusive badges. Your profile is your canvas.
-                            Customize every detail to match your vibe.
-                        </p>
-                    </div>
-
-                    <div style={{ width: '100%', overflow: 'hidden', position: 'relative' }}>
-                        <div style={{
-                            position: 'absolute', top: 0, left: 0, width: '100px', height: '100%', zIndex: 2,
-                            background: 'linear-gradient(to right, #050505, transparent)'
-                        }} />
-                        <div style={{
-                            position: 'absolute', top: 0, right: 0, width: '100px', height: '100%', zIndex: 2,
-                            background: 'linear-gradient(to left, #050505, transparent)'
-                        }} />
-
-                        <motion.div
-                            className="flex gap-6"
-                            animate={{ x: [0, -1000] }}
-                            transition={{
-                                x: { repeat: Infinity, repeatType: "loop", duration: 20, ease: "linear" },
-                            }}
-                            style={{ width: 'max-content', padding: '20px 0' }}
-                        >
-                            {[...Array(2)].map((_, setIndex) => (
-                                <React.Fragment key={setIndex}>
-                                    {[
-                                        { name: 'Kael', role: 'Artist', color: '#FF4500' },
-                                        { name: 'Viper', role: 'Gamer', color: '#10B981' },
-                                        { name: 'Luna', role: 'Dev', color: '#3B82F6' },
-                                        { name: 'Nova', role: 'Creator', color: '#F59E0B' },
-                                        { name: 'Rift', role: 'Streamer', color: '#8B5CF6' }
-                                    ].map((profile, i) => (
-                                        <div key={i} className="glass-panel" style={{
-                                            width: '280px', height: '360px', borderRadius: '24px', flexShrink: 0,
-                                            border: `1px solid ${profile.color}40`,
-                                            background: `linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))`,
-                                            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                            boxShadow: `0 10px 40px ${profile.color}20`
-                                        }}>
-                                            <div style={{
-                                                width: '100px', height: '100px', borderRadius: '50%',
-                                                border: `3px solid ${profile.color}`,
-                                                marginBottom: '20px',
-                                                boxShadow: `0 0 20px ${profile.color}40`,
-                                                background: `linear-gradient(45deg, ${profile.color}, #111)`
-                                            }} />
-                                            <h3 className="text-2xl font-bold text-white mb-2">{profile.name}</h3>
-                                            <span style={{
-                                                padding: '6px 16px', borderRadius: '20px',
-                                                background: `${profile.color}20`, color: profile.color,
-                                                fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase'
-                                            }}>
-                                                {profile.role}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </React.Fragment>
-                            ))}
-                        </motion.div>
-                    </div>
-                </div>
-            </section>
-
-            {/* --- Power Features --- */}
-            <section style={{ padding: '80px 0', position: 'relative' }}>
-                <div className="container" style={{ padding: '0 20px' }}>
+            <div className="landing-container">
+                {/* --- 1. Unified Split Hero --- */}
+                <section className="landing-hero">
                     <motion.div
+                        className="hero-content"
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true }}
-                        variants={fadeInUp}
-                        className="text-center"
-                        style={{ marginBottom: '60px' }}
+                        variants={staggerContainer}
                     >
-                        <h2 className="text-3xl font-bold text-white mb-4">Forged for Creators</h2>
-                        <p className="text-secondary max-w-xl mx-auto">Everything you need to showcase your digital legacy.</p>
-                    </motion.div>
+                        <motion.div variants={fadeInUp} className="hero-badge">
+                            Vynn 2.1
+                        </motion.div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px' }}>
-                        {[
-                            { icon: FaPalette, title: 'Deep Customization', desc: 'Control every pixel. Gradients, glassmorphism, and custom CSS support.', color: '#FF4500' },
-                            { icon: FaBolt, title: 'Instant Performance', desc: 'Blazing fast load times. Optimized for mobile and Discord embeds.', color: '#F59E0B' },
-                            { icon: FaCrown, title: 'XP & Progression', desc: 'Earn XP for engagement. Level up to unlock exclusive frames and badges.', color: '#EF4444' }, // Using red-ish orange
-                            { icon: FaDiscord, title: 'Discord First', desc: 'Seamless integration. Display your status, banner, and avatar automatically.', color: '#5865F2' },
-                            { icon: FaUsers, title: 'Community Tools', desc: 'Guestbooks, reactions, and automated roles for your supporters.', color: '#3B82F6' },
-                            { icon: FaShieldAlt, title: 'Secure & Safe', desc: 'Advanced moderation tools and NSFW gating to keep your community safe.', color: '#10B981' }
-                        ].map((feature, i) => (
-                            <motion.div
-                                key={i}
-                                initial="hidden"
-                                whileInView="visible"
-                                viewport={{ once: true }}
-                                variants={fadeInUp}
-                                className="glass-panel group"
-                                style={{
-                                    transitionDelay: `${i * 0.1}s`,
-                                    padding: '24px',
-                                    borderRadius: '20px',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    transition: 'transform 0.3s ease'
-                                }}
-                            >
-                                <div style={{
-                                    position: 'absolute', top: 0, left: 0, width: '100%', height: '4px',
-                                    background: `linear-gradient(90deg, ${feature.color}, transparent)`
-                                }} />
-                                <feature.icon size={28} style={{ color: feature.color, marginBottom: '20px' }} />
-                                <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
-                                <p className="text-secondary text-sm leading-relaxed">{feature.desc}</p>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
-            </section>
+                        <motion.h1 variants={fadeInUp} className="hero-title">
+                            Your identity, <br />
+                            <span className="text-gradient">beautifully connected.</span>
+                        </motion.h1>
 
-            {/* --- Stats Banner --- */}
-            <section style={{ padding: '60px 0', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.01)' }}>
-                <div className="container" style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '40px' }}>
-                    {[
-                        { val: '10k+', label: 'Active Users' },
-                        { val: '500k+', label: 'Profile Views' },
-                        { val: '2.5M+', label: 'Link Clicks' }
-                    ].map((stat, i) => (
-                        <div key={i} className="text-center" style={{ minWidth: '140px' }}>
-                            <h3 className="text-3xl lg:text-5xl font-bold text-white mb-2" style={{ fontFamily: 'monospace' }}>{stat.val}</h3>
-                            <p className="text-secondary uppercase tracking-widest text-xs font-bold">{stat.label}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
+                        <motion.p variants={fadeInUp} className="hero-subtitle">
+                            Forge your legacy with next-gen profiles. <br />
+                            Expand your reach with the ultimate server discovery network.
+                        </motion.p>
 
-            {/* --- Power CTA Section (Redesigned) --- */}
-            <section style={{ padding: '80px 0', position: 'relative', overflow: 'hidden' }}>
-                {/* Dynamic Background */}
-                <div style={{
-                    position: 'absolute', inset: 0,
-                    background: 'radial-gradient(circle at center, rgba(255, 69, 0, 0.08) 0%, transparent 70%)',
-                    zIndex: 0
-                }} />
-
-                <div className="container relative z-10" style={{ padding: '0 20px' }}>
-                    <motion.div
-                        initial={{ opacity: 0, y: 40 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8 }}
-                        className="glass-panel"
-                        style={{
-                            padding: '40px 24px',
-                            borderRadius: '32px',
-                            textAlign: 'center',
-                            border: '1px solid rgba(255, 69, 0, 0.3)',
-                            background: 'linear-gradient(180deg, rgba(20,20,20,0.6), rgba(10,10,10,0.8))',
-                            boxShadow: '0 0 60px rgba(255, 69, 0, 0.1)',
-                            position: 'relative',
-                            overflow: 'hidden'
-                        }}
-                    >
-                        {/* Animated Border Gradient Line */}
-                        <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#FF4500] to-transparent opacity-50" />
-                        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#FF4500] to-transparent opacity-50" />
-
-                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-                            Start Your <span className="text-gradient">Legacy.</span>
-                        </h2>
-                        <p className="text-lg text-secondary mb-10 max-w-2xl mx-auto leading-relaxed">
-                            Join the fastest growing profile platform for Discord.
-                            Claim your unique URL and start building your identity today.
-                        </p>
-
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <motion.div variants={fadeInUp} className="hero-actions">
                             {isAuthenticated ? (
-                                <Link to="/dashboard" style={{ width: '100%', maxWidth: '280px' }}>
-                                    <Button size="lg" fullWidth style={{
-                                        padding: '16px',
-                                        fontSize: '1rem',
-                                        background: 'linear-gradient(90deg, #FF4500, #FF8C00)',
-                                        boxShadow: '0 0 30px rgba(255, 69, 0, 0.4)',
-                                        border: 'none'
-                                    }}>
-                                        <FaBolt style={{ marginRight: '10px' }} />
-                                        Enter Dashboard
-                                    </Button>
+                                <Link to="/dashboard" className="btn-wrapper">
+                                    <button className="btn-primary btn-lg glow-effect">
+                                        <FaBolt /> Enter Dashboard
+                                    </button>
                                 </Link>
                             ) : (
-                                <Link to="/register" style={{ width: '100%', maxWidth: '280px' }}>
-                                    <Button size="lg" fullWidth style={{
-                                        padding: '16px',
-                                        fontSize: '1rem',
-                                        background: 'linear-gradient(90deg, #FF4500, #FF8C00)',
-                                        boxShadow: '0 0 30px rgba(255, 69, 0, 0.4)',
-                                        border: 'none'
-                                    }}>
-                                        <FaBolt style={{ marginRight: '10px' }} />
-                                        Launch Vynn Profile
-                                    </Button>
-                                </Link>
+                                <div className="split-cta">
+                                    <Link to="/register" className="btn-wrapper">
+                                        <button className="btn-primary btn-lg glow-effect">
+                                            <FaBolt /> Claim Identity
+                                        </button>
+                                    </Link>
+                                    <Link to="/servers" className="btn-wrapper">
+                                        <button className="btn-secondary btn-lg">
+                                            <FaGlobe /> Explore Servers
+                                        </button>
+                                    </Link>
+                                </div>
                             )}
-                            <a href={config.serverInviteLink} target="_blank" rel="noopener noreferrer" style={{ width: '100%', maxWidth: '280px' }}>
-                                <Button variant="outline" size="lg" fullWidth style={{ padding: '16px', fontSize: '1rem' }}>
-                                    <FaDiscord style={{ marginRight: '10px' }} />
-                                    Join Community
-                                </Button>
-                            </a>
-                        </div>
+                        </motion.div>
                     </motion.div>
-                </div>
-            </section>
+                </section>
 
-            {/* --- FAQ Section --- */}
-            <section style={{ padding: '0 0 80px' }}>
-                <div className="container" style={{ maxWidth: '800px', padding: '0 20px' }}>
-                    <div className="text-center mb-10">
-                        <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Frequently Asked Questions</h2>
-                        <p className="text-secondary text-sm">Everything you need to know about Vynn.</p>
+                {/* --- 2. The Dual Pillars (High-Fidelity Bento) --- */}
+                <section className="dual-pillars-section">
+                    <div className="container">
+                        <div className="pillars-grid">
+
+                            {/* Identity Pillar: Holographic ID */}
+                            <motion.div
+                                className="pillar-card identity-pillar"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6 }}
+                            >
+                                <div className="pillar-text-content">
+                                    <div className="pillar-badge">
+                                        <FaFingerprint /> Identity
+                                    </div>
+                                    <h3>Construct Your Legacy</h3>
+                                    <p>A unified digital passport. Sync your entire digital life into one cohesive, evolving profile.</p>
+                                </div>
+
+                                <div className="pillar-visual-bento profile-bento">
+                                    {/* The Floating Card */}
+                                    <div className="bento-id-card">
+                                        <div className="id-card-header">
+                                            <div className="id-avatar"></div>
+                                            <div className="id-info">
+                                                <div className="id-name">Kael_07 <FaCheckCircle className="verified-badge" /></div>
+                                                <div className="id-role">Pro Creator</div>
+                                            </div>
+                                            <div className="id-logo">VYNN</div>
+                                        </div>
+                                        <div className="id-stats">
+                                            <div className="id-stat">
+                                                <span>Level</span>
+                                                <strong>42</strong>
+                                            </div>
+                                            <div className="id-stat">
+                                                <span>Views</span>
+                                                <strong>12.5k</strong>
+                                            </div>
+                                            <div className="id-stat">
+                                                <span>Rep</span>
+                                                <strong>Elite</strong>
+                                            </div>
+                                        </div>
+                                        <div className="id-xp-container">
+                                            <div className="id-xp-info">
+                                                <span>XP Progress</span>
+                                                <span>8,400 / 10,000</span>
+                                            </div>
+                                            <div className="id-xp-track">
+                                                <div className="id-xp-fill" style={{ width: '84%' }}></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Background Decor */}
+                                    <div className="bento-decor-circle"></div>
+                                    <div className="bento-decor-dots"></div>
+                                </div>
+                            </motion.div>
+
+                            {/* Surface Nexus Pillar: Live Feed */}
+                            <motion.div
+                                className="pillar-card surface-pillar"
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.6, delay: 0.1 }}
+                            >
+                                <div className="pillar-text-content">
+                                    <div className="pillar-badge nexus-badge">
+                                        <FaGlobe /> Nexus
+                                    </div>
+                                    <h3>Discover Communities</h3>
+                                    <p>The heartbeat of the network. Find your next home with live, intelligent server matching.</p>
+                                </div>
+
+                                <div className="pillar-visual-bento nexus-bento">
+                                    <div className="bento-search-mock">
+                                        <FaSearch /> <span>Find active servers...</span>
+                                    </div>
+
+                                    <div className="bento-server-list">
+                                        {[
+                                            { name: "Apex Legends LFG", count: "14,204 Online", tag: "#Gaming", hot: true },
+                                            { name: "Design Hub", count: "892 Online", tag: "#Creative", hot: false },
+                                            { name: "Vynn Official", count: "3,599 Online", tag: "#Community", hot: true }
+                                        ].map((server, i) => (
+                                            <div key={i} className={`bento-server-item ${server.hot ? 'hot-item' : ''}`}>
+                                                <div className="server-item-icon"></div>
+                                                <div className="server-item-info">
+                                                    <div className="server-name">{server.name}</div>
+                                                    <div className="server-count">
+                                                        <span className={`status-dot ${server.hot ? 'pulsing' : ''}`}></span>
+                                                        {server.count}
+                                                    </div>
+                                                </div>
+                                                <div className="server-tag">{server.tag}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </div>
                     </div>
+                </section>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {[
-                            { q: 'Is Vynn free to use?', a: 'Yes! Vynn is completely free to start. We will introduce premium features for power users later, but the core experience will always remain free.' },
-                            { q: 'Can I use my own domain?', a: 'Custom domain support is coming in Vynn 2.0. Stay tuned!' },
-                            { q: 'How does the XP system work?', a: 'You earn XP passively when people view your profile or click your links. Active engagement in the community also boosts your rank.' },
-                            { q: 'Is it safe for work?', a: 'Vynn supports all creators. We have a dedicated NSFW toggle and age-gate to ensure content is viewed by the appropriate audience.' }
-                        ].map((faq, i) => (
-                            <FAQItem key={i} question={faq.q} answer={faq.a} />
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* --- Creative Footer --- */}
-            <footer style={{ position: 'relative', paddingTop: '60px', paddingBottom: '0', background: '#000', marginTop: '0', overflow: 'hidden' }}>
-                <div className="ambient-glow" style={{ bottom: '0', left: '50%', transform: 'translateX(-50%)', width: '100%', height: '400px', background: 'radial-gradient(ellipse at bottom, rgba(255, 69, 0, 0.15) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-                <div className="container relative z-10" style={{ paddingBottom: '40px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '30px', marginBottom: '60px' }}>
-                        <div className="col-span-full md:col-span-1">
-                            <h3 className="text-2xl font-bold text-white mb-4">VYNN.</h3>
-                            <p className="text-secondary text-sm max-w-xs">Next-generation identity layer for the digital age.</p>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Platform</h4>
-                            <ul className="text-secondary text-sm flex flex-col gap-2">
-                                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Showcase</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Community</h4>
-                            <ul className="text-secondary text-sm flex flex-col gap-2">
-                                <li><a href="#" className="hover:text-white transition-colors">Discord Server</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Twitter / X</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-white mb-4 text-sm uppercase tracking-wider">Legal</h4>
-                            <ul className="text-secondary text-sm flex flex-col gap-2">
-                                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                            </ul>
+                {/* --- 3. Personal Identity Deep Dive --- */}
+                <section className="identity-deep-dive">
+                    <div className="container">
+                        <SectionHeader
+                            title="Master Your Persona"
+                            subtitle="More than just a link-in-bio. A complete social operating system."
+                        />
+                        <div className="feature-showcase-grid">
+                            <FeatureCard
+                                icon={FaShareAlt}
+                                title="The Social Engine"
+                                desc="Connect Discord, Twitch, X, and more. Sync your status and avatar automatically."
+                                delay={0.1}
+                            />
+                            <FeatureCard
+                                icon={FaGem}
+                                title="XP & Badges"
+                                desc="Gamify your growth. Earn XP for every view and click. Unlock exclusive badges."
+                                delay={0.2}
+                            />
+                            <FeatureCard
+                                icon={FaMobileAlt}
+                                title="Ultra Responsive"
+                                desc="Looks stunning on every device. Swipe-optimized interaction for mobile users."
+                                delay={0.3}
+                            />
                         </div>
                     </div>
+                </section>
 
-                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '30px', display: 'flex', flexDirection: 'column-reverse', justifyContent: 'space-between', alignItems: 'center', gap: '20px' }}>
-                        <p className="text-xs text-muted text-center md:text-left">© 2024 Vynn Inc. All rights reserved.</p>
-                        <div className="flex gap-6">
-                            <FaDiscord className="text-secondary hover:text-white cursor-pointer transition-colors text-xl" />
-                            <FaUsers className="text-secondary hover:text-white cursor-pointer transition-colors text-xl" />
+                {/* --- 4. Community Discovery Suite --- */}
+                <section className="discovery-suite">
+                    <div className="bg-glow-orb"></div>
+                    <div className="container">
+                        <SectionHeader
+                            title="The Server Nexus"
+                            subtitle="Give your community the spotlight it deserves."
+                        />
+
+                        <div className="nexus-preview">
+                            <motion.div
+                                className="glowing-server-card"
+                                initial={{ scale: 0.9, opacity: 0 }}
+                                whileInView={{ scale: 1, opacity: 1 }}
+                                transition={{ type: "spring", stiffness: 100 }}
+                            >
+                                <div className="server-banner"></div>
+                                <div className="server-info">
+                                    <div className="server-icon"></div>
+                                    <h3>Apex Legends LFG</h3>
+                                    <div className="server-stats">
+                                        <span><span className="dot online"></span> 1,240 Online</span>
+                                        <span><FaUsers /> 14,500 Members</span>
+                                    </div>
+                                    <button className="btn-sm btn-join">Join Server</button>
+                                </div>
+                            </motion.div>
+                            <div className="nexus-text">
+                                <h3>Glowing Vanity Cards</h3>
+                                <p>Stand out in the listing with animated borders and live member counts. First impressions matter.</p>
+                                <ul className="check-list">
+                                    <li>Priority Search Ranking</li>
+                                    <li>Custom Vanity URLs</li>
+                                    <li>Verified Reviews</li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </footer>
+                </section>
+
+                {/* --- 5. Power Features Grid --- */}
+                <section className="power-features">
+                    <div className="container">
+                        <SectionHeader title="Everything You Need" />
+                        <div className="grid-responsive-3">
+                            <SmallFeature icon={FaPalette} title="Full Customization" desc="Total control over your aesthetic." />
+                            <SmallFeature icon={FaVideo} title="Video Backgrounds" desc=" immersive identity." />
+                            <SmallFeature icon={FaRocket} title="Instant Load" desc="Optimized for performance." />
+                            <SmallFeature icon={FaLock} title="Privacy Control" desc="NSFW gates & moderation." />
+                            <SmallFeature icon={FaChartLine} title="Analytics" desc="Track your audience growth." />
+                            <SmallFeature icon={FaCode} title="API Access" desc="For developers & bots." />
+                        </div>
+                    </div>
+                </section>
+
+                {/* --- 6. The Pro Suite --- */}
+                <section className="pro-suite">
+                    <div className="container">
+                        <div className="pro-card">
+                            <div className="pro-header">
+                                <FaCrown className="pro-icon" />
+                                <h2>Vynn PRO</h2>
+                                <p>Unlock the full potential of your identity.</p>
+                            </div>
+                            <div className="pro-grid">
+                                <div className="pro-item"><span>✦</span> Verified Creator Badge</div>
+                                <div className="pro-item"><span>✦</span> 100 Asset Upload Limit</div>
+                                <div className="pro-item"><span>✦</span> 4 Connected Server Nodes</div>
+                                <div className="pro-item"><span>✦</span> 3 Custom Link Slots</div>
+                                <div className="pro-item"><span>✦</span> Video Backgrounds & CRT</div>
+                                <div className="pro-item"><span>✦</span> Glowing Server Cards</div>
+                                <div className="pro-item"><span>✦</span> Zero Vynn Branding</div>
+                                <div className="pro-item"><span>✦</span> Priority Search Ranking</div>
+                            </div>
+                            <div className="pro-cta">
+                                <Link to="/premium">
+                                    <button className="btn-primary btn-wide">View Plans</button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* --- 7. Detailed Footer --- */}
+                <footer className="main-footer">
+                    <div className="container">
+                        <div className="footer-grid">
+                            <div className="footer-brand">
+                                <h3>VYNN.</h3>
+                                <p>The comprehensive merged hub for creators and communities.</p>
+                                <div className="social-links">
+                                    <a href="#"><FaDiscord /></a>
+                                    <a href="#"><FaTwitter /></a>
+                                    <a href="#"><FaGithub /></a>
+                                </div>
+                            </div>
+                            <div className="footer-col">
+                                <h4>Platform</h4>
+                                <Link to="/features">Features</Link>
+                                <Link to="/servers">Browe Servers</Link>
+                                <Link to="/premium">Premium</Link>
+                            </div>
+                            <div className="footer-col">
+                                <h4>Resources</h4>
+                                <Link to="/blog">Blog</Link>
+                                <Link to="/help">Help Center</Link>
+                                <Link to="/guidelines">Community Guidelines</Link>
+                            </div>
+                            <div className="footer-col">
+                                <h4>Legal</h4>
+                                <Link to="/privacy">Privacy Policy</Link>
+                                <Link to="/terms">Terms of Service</Link>
+                                <Link to="/cookies">Cookie Policy</Link>
+                            </div>
+                        </div>
+                        <div className="footer-bottom">
+                            <p>&copy; {new Date().getFullYear()} Vynn Inc. All rights reserved.</p>
+                        </div>
+                    </div>
+                </footer>
+            </div>
         </Layout>
     );
 };
 
-const FAQItem = ({ question, answer }) => {
-    const [isOpen, setIsOpen] = React.useState(false);
+// --- Sub-components ---
 
-    return (
-        <motion.div
-            className="glass-panel"
-            initial={false}
-            animate={{ backgroundColor: isOpen ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.02)' }}
-            style={{ borderRadius: '12px', overflow: 'hidden', cursor: 'pointer', border: '1px solid rgba(255,255,255,0.05)' }}
-            onClick={() => setIsOpen(!isOpen)}
-        >
-            <div style={{ padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 className="font-medium text-white text-sm md:text-base pr-4">{question}</h3>
-                <motion.span animate={{ rotate: isOpen ? 180 : 0 }} className="text-secondary flex-shrink-0">
-                    ▼
-                </motion.span>
-            </div>
-            <motion.div
-                initial="collapsed"
-                animate={isOpen ? "open" : "collapsed"}
-                variants={{
-                    open: { opacity: 1, height: "auto" },
-                    collapsed: { opacity: 0, height: 0 }
-                }}
-                transition={{ duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] }}
-            >
-                <div style={{ padding: '0 20px 20px', color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.9rem' }}>
-                    {answer}
-                </div>
-            </motion.div>
-        </motion.div>
-    );
-};
+const SectionHeader = ({ title, subtitle }) => (
+    <div className="section-header">
+        <h2>{title}</h2>
+        {subtitle && <p>{subtitle}</p>}
+    </div>
+);
+
+const FeatureCard = ({ icon: Icon, title, desc, delay }) => (
+    <motion.div
+        className="glass-feature-card"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay: delay, duration: 0.6 }}
+    >
+        <div className="icon-box"><Icon /></div>
+        <h3>{title}</h3>
+        <p>{desc}</p>
+    </motion.div>
+);
+
+const SmallFeature = ({ icon: Icon, title, desc }) => (
+    <div className="small-feature">
+        <Icon className="sf-icon" />
+        <div>
+            <h4>{title}</h4>
+            <p>{desc}</p>
+        </div>
+    </div>
+);
 
 export default Landing;

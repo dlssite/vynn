@@ -1,26 +1,29 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
-import Button from '../../components/Button';
 import toast from 'react-hot-toast';
 import {
-    FaUser, FaHashtag, FaEye, FaPen, FaCheckCircle,
-    FaDiscord, FaShieldAlt, FaCog, FaCreditCard, FaArrowRight,
-    FaRegSmileBeam, FaRocket, FaCertificate, FaCopy, FaAward
+    FaUser, FaHashtag, FaEye, FaPen, FaDiscord,
+    FaShieldAlt, FaCog, FaCreditCard, FaArrowRight,
+    FaAward, FaLink, FaGift, FaServer, FaChevronLeft, FaChevronRight
 } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import IdentityHeader from '../../components/dashboard/IdentityHeader';
+import ProgressWidget from '../../components/dashboard/ProgressWidget';
+import ServerCard from '../../components/dashboard/ServerCard';
 
 const Account = () => {
     const { user: authUser } = useAuth();
     const [profile, setProfile] = useState(null);
     const [userData, setUserData] = useState(null);
+    const [userServers, setUserServers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const scrollRef = useRef(null);
 
-    // Real-time Data: Poll every 5 seconds to keep stats and health updated
+    // Real-time Data
     useEffect(() => {
         fetchProfile();
-        const interval = setInterval(fetchProfile, 5000);
+        const interval = setInterval(fetchProfile, 10000);
         return () => clearInterval(interval);
     }, []);
 
@@ -29,11 +32,22 @@ const Account = () => {
             const res = await api.get('/profiles/@me');
             setProfile(res.data.profile);
             setUserData(res.data.user);
+
+            // Fetch real server data from the owner
+            try {
+                const serverRes = await api.get('/servers/owner/@me');
+                setUserServers(serverRes.data || []);
+            } catch (err) {
+                console.log("Failed to load real servers", err);
+            }
+
             setLoading(false);
         } catch (error) {
             console.error(error);
         }
     };
+
+    const displayUser = userData || authUser;
 
     const completionSteps = [
         { label: 'Upload Avatar', done: !!profile?.avatar, icon: FaUser, link: '/design' },
@@ -41,180 +55,140 @@ const Account = () => {
         { label: 'Discord Link', done: !!userData?.discord?.id, icon: FaDiscord, action: 'discord' },
         { label: 'Social Icons', done: profile?.socials?.length > 0, icon: FaHashtag, link: '/account/settings' },
     ];
-    const completedCount = completionSteps.filter(s => s.done).length;
-    const progress = Math.round((completedCount / completionSteps.length) * 100);
-
-    const handleStepClick = (step) => {
-        if (step.action === 'discord' && !step.done) {
-            if (!userData?.discord?.id) {
-                window.location.href = `/api/auth/discord?token=${localStorage.getItem('vynn_token')}`;
-            }
-        }
-    };
-
-    const copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text);
-        toast.success('Link copied!');
-    };
-
-    const displayUser = userData || authUser;
 
     return (
-        <div className="animate-fade-in w-full overflow-hidden">
-            {/* Command Center Header */}
-            <div className="page-header flex flex-col md:flex-row justify-between items-start md:items-center gap-4 md:gap-0 mb-8">
-                <div>
-                    <h1 className="page-title text-3xl font-black">Command Center</h1>
-                    <p className="text-secondary text-sm flex items-center gap-2 mt-1">
-                        Welcome back, <span className="text-white font-bold">{displayUser?.displayName || displayUser?.username}</span> <FaRegSmileBeam className="text-orange-500" />
-                    </p>
+        <div className="animate-fade-in w-full pb-20">
+            {/* Identity Hero */}
+            <IdentityHeader user={displayUser} profile={profile} />
 
-                    {/* Quick Access Links */}
-                    <div className="flex flex-wrap gap-3 mt-4">
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs transition-colors hover:bg-white/10">
-                            <span className="text-secondary uppercase text-[10px] font-bold tracking-wider">Profile</span>
-                            <code className="text-white font-mono">{window.location.host}/{displayUser?.username}</code>
-                            <button onClick={() => copyToClipboard(`${window.location.origin}/${displayUser?.username}`)} className="text-white/50 hover:text-white ml-1 p-1">
-                                <FaCopy />
-                            </button>
+            <div className="dash-grid grid-cols-1 xl:grid-cols-3 gap-6">
+
+                {/* LEFT COLUMN: Stats & Main Actions */}
+                <div className="xl:col-span-2 flex flex-col gap-8">
+
+                    {/* Key Metrics */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <StatCard label="Views" value={profile?.views || 0} icon={FaEye} color="#22c55e" />
+                        <StatCard label="Referrals" value={displayUser?.referralStats?.totalReferrals || 0} icon={FaGift} color="#f97316" />
+                        <StatCard label="Servers" value={userServers.length} icon={FaServer} color="#6366f1" />
+                        <StatCard label="Rating" value="5.0" icon={FaAward} color="#eab308" />
+                    </div>
+
+                    {/* My Servers Section */}
+                    <div className="server-section">
+                        <div className="flex items-center justify-between mb-4 px-2">
+                            <h2 className="text-xl font-bold flex items-center gap-2">
+                                <FaServer className="text-indigo-400" /> My Servers
+                            </h2>
+                            <div className="flex items-center gap-4">
+                                {userServers.length > 2 && (
+                                    <div className="hidden md:flex items-center gap-2">
+                                        <button
+                                            onClick={() => scrollRef.current?.scrollBy({ left: -400, behavior: 'smooth' })}
+                                            className="carousel-nav-btn"
+                                        >
+                                            <FaChevronLeft size={12} />
+                                        </button>
+                                        <button
+                                            onClick={() => scrollRef.current?.scrollBy({ left: 400, behavior: 'smooth' })}
+                                            className="carousel-nav-btn"
+                                        >
+                                            <FaChevronRight size={12} />
+                                        </button>
+                                    </div>
+                                )}
+                                <a href={`${import.meta.env.VITE_SERVERS_URL || 'http://localhost:3000'}/submit`} className="text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors">
+                                    + Add Server
+                                </a>
+                            </div>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-xs transition-colors hover:bg-white/10">
-                            <span className="text-secondary uppercase text-[10px] font-bold tracking-wider">Referral</span>
-                            <code className="text-white font-mono">/r/{displayUser?.premiumReferralCode || displayUser?.referralCode || '...'}</code>
+
+                        {userServers.length > 0 ? (
+                            <div className="server-carousel-container">
+                                <div
+                                    ref={scrollRef}
+                                    className="server-scroll-view no-scrollbar"
+                                >
+                                    {userServers.map(server => (
+                                        <div
+                                            key={server._id}
+                                            className="server-card-wrapper"
+                                        >
+                                            <ServerCard server={server} />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="glass-panel p-8 rounded-2xl text-center border-dashed border-2 border-white/10 flex flex-col items-center">
+                                <FaServer size={48} className="text-white/10 mb-4" />
+                                <h3 className="font-bold text-lg">No Servers Yet</h3>
+                                <p className="text-secondary text-sm mb-6 max-w-md mx-auto">
+                                    Add your Discord server to Vynn to gain visibility, members, and premium tool access.
+                                </p>
+                                <a
+                                    href={`${import.meta.env.VITE_SERVERS_URL || 'http://localhost:3000'}/submit`}
+                                    className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold transition-all"
+                                >
+                                    Add Server
+                                </a>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Quick Actions Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Link to="/design" className="glass-panel p-6 rounded-2xl group hover:bg-white/5 transition-all">
+                            <div className="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+                                <FaPen size={20} />
+                            </div>
+                            <h3 className="text-lg font-bold mb-1">Customize Profile</h3>
+                            <p className="text-sm text-secondary">Update your theme, layout, and colors.</p>
+                        </Link>
+
+                        <Link to="/links" className="glass-panel p-6 rounded-2xl group hover:bg-white/5 transition-all">
+                            <div className="w-12 h-12 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-400 mb-4 group-hover:scale-110 transition-transform">
+                                <FaLink size={20} />
+                            </div>
+                            <h3 className="text-lg font-bold mb-1">Manage Links</h3>
+                            <p className="text-sm text-secondary">Add buttons for your socials and sites.</p>
+                        </Link>
+                    </div>
+
+                    {/* Discord Connect Banner (If not connected) */}
+                    {!displayUser?.discord?.id && (
+                        <div className="p-6 rounded-2xl bg-[#5865F2] text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl shadow-[#5865F2]/20">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-white/10 rounded-xl">
+                                    <FaDiscord size={32} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg">Connect Discord</h3>
+                                    <p className="text-blue-100 text-sm">Unlock special badges and faster login.</p>
+                                </div>
+                            </div>
                             <button
-                                onClick={() => copyToClipboard(`${window.location.origin}/r/${displayUser?.premiumReferralCode || displayUser?.referralCode}`)}
-                                className="text-white/50 hover:text-white ml-1 p-1"
-                                disabled={!displayUser?.referralCode}
+                                onClick={() => window.location.href = `/api/auth/discord?token=${localStorage.getItem('vynn_token')}`}
+                                className="px-6 py-2 bg-white text-[#5865F2] font-bold rounded-xl hover:bg-gray-100 transition-colors whitespace-nowrap"
                             >
-                                <FaCopy />
+                                Link Account
                             </button>
                         </div>
-                    </div>
-                </div>
-                <div className="flex gap-3 w-full md:w-auto">
-                    <Link to="/premium" className="action-button-premium flex-1 md:flex-none justify-center">
-                        <FaRocket /> GO PRO
-                    </Link>
-                    <Link to="/account/settings" className="action-button-outline flex-1 md:flex-none justify-center">
-                        <FaCog /> SETTINGS
-                    </Link>
-                </div>
-            </div>
-
-            {/* Quick Stats Grid */}
-            <div className="dash-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 mb-10 gap-4">
-                <StatCard label="Username" value={displayUser?.username} icon={FaUser} sub="Primary handle" color="#3b82f6" />
-                <StatCard label="Display Name" value={displayUser?.displayName || displayUser?.username} icon={FaUser} sub="Profile title" color="#f97316" />
-                <StatCard label="Vynn Tag" value={`#${displayUser?.tag || '0000'}`} icon={FaHashtag} sub="Social discriminator" color="#a855f7" />
-                <StatCard label="Global Views" value={profile?.views || 0} icon={FaEye} sub="Total reach" color="#22c55e" />
-            </div>
-
-            {/* Main Content Layout */}
-            <div className="dash-grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {/* Profile Completion - Left Side (2 cols) */}
-                <div className="lg:col-span-2">
-                    <div className="glass-panel p-6 md:p-8 mb-8 rounded-[32px]">
-                        <div className="flex justify-between items-center mb-8">
-                            <div>
-                                <h3 className="text-xl font-bold mb-1">Profile Health</h3>
-                                <p className="text-secondary text-xs">Complete these steps to unlock full potential.</p>
-                            </div>
-                            <div className="text-right">
-                                <span className="text-3xl font-black text-orange-500">{progress}%</span>
-                                <p className="text-[10px] text-secondary font-bold uppercase tracking-wider">Strength</p>
-                            </div>
-                        </div>
-
-                        {/* Progress Tracker */}
-                        <div className="progress-bar-container mb-10 w-full h-2 bg-white/5 rounded-full overflow-hidden">
-                            <motion.div
-                                initial={{ width: 0 }}
-                                animate={{ width: `${progress}%` }}
-                                transition={{ duration: 1, ease: "easeOut" }}
-                                className="h-full bg-gradient-to-r from-orange-600 to-orange-500 shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-                            />
-                        </div>
-
-                        {/* Interactive Checklist */}
-                        <div className="dash-grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {completionSteps.map((step, i) => {
-                                const ItemWrapper = step.link ? Link : 'div';
-                                return (
-                                    <ItemWrapper
-                                        to={step.link}
-                                        key={i}
-                                        onClick={() => handleStepClick(step)}
-                                        className={`checklist-item ${step.done ? 'checklist-item-done' : ''} p-4 rounded-xl border border-white/5 bg-white/[0.02] flex items-center justify-between cursor-pointer transition-all hover:bg-white/[0.05] hover:border-white/10`}
-                                    >
-                                        <div className="flex items-center gap-4">
-                                            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg transition-colors ${step.done ? 'bg-white/5 text-muted' : 'bg-orange-500/10 text-orange-500'}`}>
-                                                <step.icon />
-                                            </div>
-                                            <div>
-                                                <p className={`text-sm font-bold ${step.done ? 'text-muted line-through' : 'text-white'}`}>
-                                                    {step.label}
-                                                </p>
-                                                <p className="text-[10px] text-secondary">
-                                                    {step.done ? 'Step Completed' : 'Tap to Complete'}
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className={`${step.done ? 'text-green-500' : 'text-white/10'}`}>
-                                            <FaCheckCircle size={18} />
-                                        </div>
-                                    </ItemWrapper>
-                                );
-                            })}
-                        </div>
-                    </div>
-
-                    {/* Quick Tips */}
-                    <Link to="/premium" className="promo-banner flex items-center gap-4 p-6 rounded-2xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/20 hover:border-indigo-500/40 transition-all cursor-pointer group">
-                        <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
-                            <FaCertificate size={24} />
-                        </div>
-                        <div className="flex-1">
-                            <h4 className="font-bold mb-1 text-indigo-100">Become a Verified Creator</h4>
-                            <p className="text-secondary text-xs">Verified accounts get a blue checkmark, custom SEO settings, and appear higher in discovery.</p>
-                        </div>
-                        <div className="text-indigo-400 group-hover:translate-x-1 transition-transform">
-                            <FaArrowRight />
-                        </div>
-                    </Link>
+                    )}
                 </div>
 
-                {/* Right Side: Account Actions */}
+                {/* RIGHT COLUMN: Health & Settings */}
                 <div className="flex flex-col gap-6">
-                    <section className="glass-panel p-6 md:p-8 rounded-[32px]">
-                        <h3 className="mb-2 font-bold text-lg">Management</h3>
-                        <p className="text-secondary mb-6 text-xs">Quick links to control your experience.</p>
+                    {/* Profile Health Widget */}
+                    <ProgressWidget steps={completionSteps} />
 
-                        <div className="flex flex-col gap-3">
-                            <QuickLink to="/account/settings" icon={FaPen} label="Edit Identity" sub="Name, bio, and handle" />
-                            <QuickLink to="/account/badges" icon={FaAward} label="Badges & Showcase" sub="Manage your achievements" />
-                            <QuickLink to="/account/settings" icon={FaShieldAlt} label="Privacy & Security" sub="Protect your account" />
-                            <QuickLink to="/premium" icon={FaCreditCard} label="Vynn Premium" sub="Manage subscription" highlight />
-                            <QuickLink to="/account/settings" icon={FaCog} label="System Preferences" sub="General platform settings" />
-                        </div>
-                    </section>
-
-                    <section className="glass-panel p-6 md:p-8 rounded-[32px]">
-                        <h3 className="mb-2 font-bold text-lg">Social Auth</h3>
-                        <p className="text-secondary mb-6 text-xs">Connect for faster logins.</p>
-
-                        <button
-                            className="discord-connect-btn w-full py-3 rounded-xl bg-[#5865F2] hover:bg-[#4752c4] text-white font-bold flex items-center justify-center gap-2 transition-all"
-                            onClick={() => {
-                                if (!displayUser?.discord?.id) {
-                                    window.location.href = `/api/auth/discord?token=${localStorage.getItem('vynn_token')}`;
-                                }
-                            }}
-                            disabled={!!displayUser?.discord?.id}
-                        >
-                            <FaDiscord size={20} />
-                            {displayUser?.discord?.id ? 'Connected' : 'Sync Discord'}
-                        </button>
-                    </section>
+                    {/* Settings Menu */}
+                    <div className="glass-panel p-2 rounded-2xl">
+                        <MenuLink to="/account/settings" icon={FaCog} label="General Settings" />
+                        <MenuLink to="/account/badges" icon={FaAward} label="My Badges" />
+                        <MenuLink to="/premium" icon={FaCreditCard} label="Billing & Plan" />
+                        <MenuLink to="/account/settings" icon={FaShieldAlt} label="Privacy & Safety" />
+                    </div>
                 </div>
             </div>
         </div>
@@ -222,27 +196,23 @@ const Account = () => {
 };
 
 // Sub-components
-const StatCard = ({ label, value, icon: Icon, sub, color }) => (
-    <div className="stat-card">
-        <div className="stat-card-icon-bg" style={{ color }}>
+const StatCard = ({ label, value, icon: Icon, color }) => (
+    <div className="glass-panel p-5 rounded-2xl border-white/5 flex flex-col items-center justify-center text-center hover:bg-white/[0.04] transition-colors">
+        <div className="mb-2 text-2xl" style={{ color }}>
             <Icon />
         </div>
-        <p className="stat-card-label">{label}</p>
-        <h3 className="stat-card-value">{value}</h3>
-        <p className="stat-card-sub">{sub}</p>
+        <div className="text-2xl font-black">{value}</div>
+        <div className="text-xs text-secondary font-bold uppercase tracking-wider">{label}</div>
     </div>
 );
 
-const QuickLink = ({ to, icon: Icon, label, sub, highlight }) => (
-    <Link to={to} className={`action-link ${highlight ? 'action-link-highlight' : ''}`}>
-        <div className={`action-link-icon ${highlight ? 'action-link-icon-highlight' : ''}`}>
-            <Icon />
+const MenuLink = ({ to, icon: Icon, label }) => (
+    <Link to={to} className="flex items-center justify-between p-4 rounded-xl hover:bg-white/5 transition-colors group">
+        <div className="flex items-center gap-3">
+            <span className="text-secondary group-hover:text-white transition-colors"><Icon /></span>
+            <span className="text-sm font-medium text-white/80 group-hover:text-white">{label}</span>
         </div>
-        <div style={{ flex: 1 }}>
-            <p style={{ fontSize: '0.875rem', fontWeight: 'bold', color: highlight ? '#f97316' : 'white' }}>{label}</p>
-            <p style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{sub}</p>
-        </div>
-        <FaArrowRight size={10} className="action-link-arrow" />
+        <FaArrowRight className="text-xs text-white/20 group-hover:text-white/60 group-hover:translate-x-1 transition-all" />
     </Link>
 );
 

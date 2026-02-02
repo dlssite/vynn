@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { FaDiscord } from 'react-icons/fa';
 import Button from '../components/Button';
@@ -12,14 +12,42 @@ const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const { login } = useAuth();
+    const { login, isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
+
+    // Handle SSO Redirects
+    React.useEffect(() => {
+        const params = new URLSearchParams(location.search);
+        const redirect = params.get('redirect');
+
+        if (redirect) {
+            // Save redirect for after login
+            sessionStorage.setItem('vynn_sso_redirect', redirect);
+
+            // If already logged in, redirect back immediately
+            if (isAuthenticated) {
+                const token = localStorage.getItem('vynn_token');
+                window.location.href = `${redirect}/login/callback?token=${token}`;
+            }
+        }
+    }, [isAuthenticated, location]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
             await login(email, password);
+
+            // Check for SSO redirect
+            const ssoRedirect = sessionStorage.getItem('vynn_sso_redirect');
+            if (ssoRedirect) {
+                sessionStorage.removeItem('vynn_sso_redirect');
+                const token = localStorage.getItem('vynn_token');
+                window.location.href = `${ssoRedirect}/login/callback?token=${token}`;
+                return;
+            }
+
             navigate('/account');
         } catch (error) {
             console.error(error);

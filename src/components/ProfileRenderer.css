@@ -1,0 +1,232 @@
+.profile-renderer {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--profile-text);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+/* Background & Effects */
+.effect-scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 5;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0) 50%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.2));
+    background-size: 100% 4px;
+    animation: scanlines 1s linear infinite;
+}
+
+@keyframes scanlines {
+    0% {
+        background-position: 0 0;
+    }
+
+    100% {
+        background-position: 0 4px;
+    }
+}
+
+/* Grid Wrapper */
+.profile-grid-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 1280px;
+    display: grid;
+    gap: 10px;
+    padding: 0 20px;
+    /* Desktop Default: 3 Columns */
+    grid-template-columns: 360px 1fr 360px;
+    align-items: stretch;
+    /* Stretch to match heights */
+}
+
+/* Columns */
+.profile-column-identity {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.profile-column-links {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.profile-column-presence {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Common Card Styles */
+.profile-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+/* Links Hover */
+.profile-link-hover:hover {
+    background: var(--profile-primary) !important;
+    border-color: var(--profile-primary) !important;
+    color: #fff !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 1024px) {
+    .profile-grid-wrapper {
+        grid-template-columns: 1fr;
+        /* Stack vertically */
+        max-width: 480px;
+        padding: 0;
+    }
+
+    .profile-column-links {
+        order: 2;
+        /* Links below identity */
+    }
+
+    .profile-column-presence {
+        order: 3;
+        /* Presence at bottom */
+        min-height: 200px;
+    }
+}
+
+/* Force Mobile for Previews */
+.profile-grid-wrapper.force-mobile {
+    grid-template-columns: 1fr !important;
+    max-width: 480px !important;
+    padding: 0 !important;
+}
+
+.profile-grid-wrapper.force-mobile .profile-column-links {
+    order: 2 !important;
+}
+
+.profile-grid-wrapper.force-mobile .profile-column-presence {
+    order: 3 !important;
+    min-height: 200px !important;
+}
+
+/* Glow Effects */
+.glow-badges {
+    filter: drop-shadow(0 0 8px currentColor);
+}
+
+.glow-avatar-card {
+    box-shadow: 0 0 30px var(--card-bg-raw);
+}
+
+.glow-username {
+    text-shadow: 0 0 10px currentColor;
+}
+
+.glow-socials {
+    filter: drop-shadow(0 0 5px currentColor);
+}
+
+/* Animation Utils */
+@keyframes pulseRing {
+    0% {
+        transform: scale(0.95);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(0.95);
+        opacity: 0.5;
+    }
+}
+
+/* Scrollbar Hide for Cleanliness */
+::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+
+/* View Counter UI */
+.profile-view-counter {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 20;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.profile-view-counter:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--profile-primary);
+    transform: translateY(-2px);
+}
+
+.profile-view-counter svg {
+    color: var(--profile-primary);
+    font-size: 14px;
+    filter: drop-shadow(0 0 5px var(--profile-primary));
+}
+
+.profile-view-counter .count-value {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Loader Styles */
+.vynn-loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    height: 100%;
+    width: 100%;
+}
+
+.vynn-logo-loader {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    animation: vynn-pulse 1.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 10px var(--profile-primary));
+}
+
+@keyframes vynn-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+}

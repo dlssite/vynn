@@ -4,6 +4,7 @@ import api, { referralAPI, API_BASE_URL } from '../../../services/api';
 import Button from '../../../components/Button';
 import toast from 'react-hot-toast';
 import { FaAt, FaFingerprint, FaInfoCircle, FaEnvelope, FaTrash, FaUserSecret, FaDiscord, FaUserPlus, FaBolt, FaCoins, FaExclamationTriangle } from 'react-icons/fa';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 const Settings = () => {
     const { user } = useAuth();
@@ -15,6 +16,16 @@ const Settings = () => {
         isNSFW: user?.isNSFW || false
     });
     const [referrer, setReferrer] = useState(null);
+
+    // Modal States
+    const [confirmModal, setConfirmModal] = useState({
+        open: false,
+        type: null, // 'discord', 'nsfw', 'delete'
+        title: '',
+        message: '',
+        confirmText: '',
+        requirePrompt: false
+    });
 
     useEffect(() => {
         const loadReferrer = async () => {
@@ -39,13 +50,13 @@ const Settings = () => {
     }, []);
 
     const handleUnlinkDiscord = async () => {
-        if (!window.confirm('Are you sure you want to disconnect Discord?')) return;
+        const t = toast.loading('Unlinking Discord...');
         try {
             await api.post('/auth/discord/unlink');
-            toast.success('Discord unlinked');
+            toast.success('Discord unlinked', { id: t });
             window.location.reload();
         } catch (error) {
-            toast.error('Failed to unlink Discord');
+            toast.error('Failed to unlink Discord', { id: t });
         }
     };
 
@@ -82,11 +93,6 @@ const Settings = () => {
     };
 
     const handleDeleteAccount = async () => {
-        if (!window.confirm('CRITICAL: This will permanently delete your Vynn account, profile, and all associated data. This action cannot be undone. Are you absolutely sure?')) return;
-
-        const confirmation = window.prompt('Please type "DELETE" to confirm:');
-        if (confirmation !== 'DELETE') return;
-
         setLoading(true);
         try {
             await api.delete('/auth/account');
@@ -99,6 +105,11 @@ const Settings = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmedAction = () => {
+        if (confirmModal.type === 'discord') handleUnlinkDiscord();
+        if (confirmModal.type === 'delete') handleDeleteAccount();
     };
 
     return (
@@ -318,7 +329,13 @@ const Settings = () => {
                             {user?.discord?.id ? (
                                 <button
                                     type="button"
-                                    onClick={handleUnlinkDiscord}
+                                    onClick={() => setConfirmModal({
+                                        open: true,
+                                        type: 'discord',
+                                        title: 'Disconnect Discord',
+                                        message: 'Are you sure you want to disconnect your Discord account? You will lose access to Discord-linked features until you reconnect.',
+                                        confirmText: 'DISCONNECT'
+                                    })}
                                     style={{
                                         padding: '8px 20px', borderRadius: '10px',
                                         background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
@@ -365,7 +382,14 @@ const Settings = () => {
                         </div>
                         <button
                             type="button"
-                            onClick={handleDeleteAccount}
+                            onClick={() => setConfirmModal({
+                                open: true,
+                                type: 'delete',
+                                title: 'TERMINATE ACCOUNT',
+                                message: 'CRITICAL: This will permanently delete your Vynn account, profile, and all associated data. This action is IRREVERSIBLE. Are you absolutely sure?',
+                                confirmText: 'DELETE PERMANENTLY',
+                                requirePrompt: true
+                            })}
                             style={{
                                 padding: '12px 24px', borderRadius: '12px',
                                 background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)',
@@ -380,6 +404,17 @@ const Settings = () => {
                     </div>
                 </section>
             </form>
+
+            <ConfirmModal
+                isOpen={confirmModal.open}
+                onClose={() => setConfirmModal({ ...confirmModal, open: false })}
+                onConfirm={handleConfirmedAction}
+                title={confirmModal.title}
+                message={confirmModal.message}
+                confirmText={confirmModal.confirmText}
+                requirePrompt={confirmModal.requirePrompt}
+                variant="danger"
+            />
         </div>
     );
 };

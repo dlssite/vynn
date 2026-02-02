@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTrash, FaExternalLinkAlt, FaImage, FaVideo, FaMusic, FaFile, FaPlus, FaCloudUploadAlt, FaHistory, FaSync, FaCheckSquare, FaSquare, FaTimes } from 'react-icons/fa';
 import api from '../../services/api';
+import toast from 'react-hot-toast';
+import ConfirmModal from '../../components/ConfirmModal';
 import './Dashboard.css';
 import './ForgeGallery.css';
 
@@ -16,6 +18,9 @@ const ForgeGallery = () => {
     const [manageMode, setManageMode] = useState(false);
     const [selectedIds, setSelectedIds] = useState([]);
 
+    // Modal States
+    const [confirmDelete, setConfirmDelete] = useState({ open: false, id: null, batch: false });
+
     const fetchAssets = async () => {
         try {
             const [assetsRes, statsRes] = await Promise.all([
@@ -27,7 +32,7 @@ const ForgeGallery = () => {
             setLoading(false);
         } catch (err) {
             console.error('Fetch assets error:', err);
-            setError('Failed to load assets');
+            toast.error('Failed to load assets from vault');
             setLoading(false);
         }
     };
@@ -37,38 +42,35 @@ const ForgeGallery = () => {
     }, []);
 
     const handleMigrate = async () => {
-        setLoading(true);
+        const t = toast.loading('Recovering legacy assets...');
         try {
             await api.post('/upload/migrate');
             await fetchAssets();
+            toast.success('Assets recovered', { id: t });
         } catch (err) {
             console.error(err);
-            setError('Migration failed');
-            setLoading(false);
+            toast.error('Recovery failed', { id: t });
         }
     };
 
-    const handleDelete = async (id) => {
-        if (!window.confirm('Delete this asset? This cannot be undone.')) return;
-        try {
-            await api.delete(`/upload/${id}`);
-            setAssets(prev => prev.filter(a => a._id !== id));
-            fetchAssets(); // Refresh stats
-        } catch (err) {
-            alert('Failed to delete asset');
-        }
-    };
+    const handleDelete = async () => {
+        const { id, batch } = confirmDelete;
+        const t = toast.loading(batch ? `Deleting ${selectedIds.length} assets...` : 'Deleting asset...');
 
-    const handleBatchDelete = async () => {
-        if (!window.confirm(`Delete ${selectedIds.length} assets? This cannot be undone.`)) return;
         try {
-            await api.post('/upload/delete-batch', { ids: selectedIds });
-            setAssets(prev => prev.filter(a => !selectedIds.includes(a._id)));
-            setSelectedIds([]);
-            setManageMode(false);
+            if (batch) {
+                await api.post('/upload/delete-batch', { ids: selectedIds });
+                setAssets(prev => prev.filter(a => !selectedIds.includes(a._id)));
+                setSelectedIds([]);
+                setManageMode(false);
+            } else {
+                await api.delete(`/upload/${id}`);
+                setAssets(prev => prev.filter(a => a._id !== id));
+            }
             fetchAssets(); // Refresh stats
+            toast.success(batch ? 'Batch deletion complete' : 'Asset deleted', { id: t });
         } catch (err) {
-            alert('Failed to delete assets');
+            toast.error('Purge failed', { id: t });
         }
     };
 
@@ -146,7 +148,7 @@ const ForgeGallery = () => {
                     ) : (
                         <div style={{ display: 'flex', gap: '8px' }}>
                             <button
-                                onClick={handleBatchDelete}
+                                onClick={() => setConfirmDelete({ open: true, id: null, batch: true })}
                                 disabled={selectedIds.length === 0}
                                 className="batch-delete-btn"
                             >
@@ -250,7 +252,7 @@ const ForgeGallery = () => {
                                                     <FaExternalLinkAlt />
                                                 </a>
                                                 <button
-                                                    onClick={(e) => { e.stopPropagation(); handleDelete(asset._id); }}
+                                                    onClick={(e) => { e.stopPropagation(); setConfirmDelete({ open: true, id: asset._id, batch: false }); }}
                                                     className="action-btn delete"
                                                 >
                                                     <FaTrash />
@@ -264,6 +266,19 @@ const ForgeGallery = () => {
                     )}
                 </AnimatePresence>
             </div>
+
+            <ConfirmModal
+                isOpen={confirmDelete.open}
+                onClose={() => setConfirmDelete({ ...confirmDelete, open: false })}
+                onConfirm={handleDelete}
+                title={confirmDelete.batch ? "Purge Collection" : "Delete Asset"}
+                message={confirmDelete.batch
+                    ? `Are you absolutely sure you want to delete ${selectedIds.length} assets? This action is irreversible and will purge them from the vault.`
+                    : "Are you sure you want to delete this asset? This action cannot be undone."
+                }
+                confirmText={confirmDelete.batch ? "PURGE ALL" : "DELETE"}
+                variant="danger"
+            />
         </div>
     );
 };

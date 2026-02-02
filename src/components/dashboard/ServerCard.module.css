@@ -1,0 +1,228 @@
+.card {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.banner {
+    height: 100px;
+    background: var(--bg-tertiary);
+    position: relative;
+    width: 100%;
+}
+
+.bannerImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.content {
+    padding: 1rem;
+    padding-top: 2rem;
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.iconWrapper {
+    position: absolute;
+    top: -24px;
+    left: 1rem;
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-md);
+    background: var(--bg-secondary);
+    padding: 2px;
+    border: 1px solid var(--bg-primary);
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.icon {
+    width: 100%;
+    height: 100%;
+    border-radius: var(--radius-sm);
+    object-fit: cover;
+}
+
+.header {
+    margin-bottom: 0.5rem;
+}
+
+.name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.members {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.online {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 0 4px #22c55e;
+}
+
+.tagline {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+}
+
+.tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.tag {
+    font-size: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.2rem 0.6rem;
+    border-radius: var(--radius-full);
+    color: var(--text-muted);
+    border: 1px solid var(--glass-border);
+    transition: all 0.2s;
+}
+
+.tag:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+}
+
+.footer {
+    margin-top: auto;
+}
+
+.joinBtn {
+    width: 100%;
+    padding: 0.6rem;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    text-align: center;
+    display: block;
+    text-decoration: none;
+}
+
+.joinBtn:hover {
+    background: var(--text-primary);
+    color: var(--bg-primary);
+}
+
+/* Pro Features */
+.pro {
+    position: relative;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.15);
+    z-index: 1;
+}
+
+.pro::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-md);
+    background: linear-gradient(135deg, #ffd700, #ff00cc, #00d4ff);
+    z-index: -2;
+}
+
+.pro::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border-radius: calc(var(--radius-md) - 2px);
+    background: var(--bg-primary);
+    z-index: -1;
+}
+
+.proBadge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: black;
+    font-weight: 800;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    z-index: 20;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* Compact Mode Refinements */
+.compact .banner {
+    height: 70px;
+}
+
+.compact .content {
+    padding: 0.75rem;
+    padding-top: 1.5rem;
+}
+
+.compact .iconWrapper {
+    width: 38px;
+    height: 38px;
+    top: -19px;
+    left: 0.75rem;
+}
+
+.compact .name {
+    font-size: 0.95rem;
+}
+
+.compact .members {
+    font-size: 0.7rem;
+}
+
+.compact .tagline {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+    -webkit-line-clamp: 1;
+}
+
+.compact .tags {
+    display: none;
+}
+
+.compact .joinBtn {
+    padding: 0.4rem;
+    font-size: 0.8rem;
+}

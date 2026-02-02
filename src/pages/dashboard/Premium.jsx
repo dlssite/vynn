@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaCheck, FaStar, FaBriefcase, FaUserShield, FaMagic, FaChartBar, FaGlobeAmericas, FaMinus, FaClock, FaInfinity, FaCheckCircle } from 'react-icons/fa';
+import { FaCheck, FaStar, FaBriefcase, FaUserShield, FaMagic, FaChartBar, FaGlobeAmericas, FaMinus, FaClock, FaInfinity, FaCheckCircle, FaBolt, FaDiscord } from 'react-icons/fa';
 import Button from '../../components/Button';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
@@ -39,16 +39,42 @@ const Premium = () => {
 
     const remainingDays = getRemainingTime();
 
-    const features = [
-        { name: 'Custom Profile URL', free: true, pro: true },
-        { name: 'Unlimited Links', free: true, pro: true },
-        { name: 'Standard Analytics', free: true, pro: true },
-        { name: 'Video Backgrounds', free: false, pro: true },
-        { name: 'Remove Brand Watermark', free: false, pro: true },
-        { name: 'Premium Analytics', free: false, pro: true },
-        { name: 'Custom Meta Tags (SEO)', free: false, pro: true },
-        { name: 'Verified Badge', free: false, pro: true },
-        { name: 'Priority Support', free: false, pro: true },
+    const featureSections = [
+        {
+            title: 'Aesthetics & Identity',
+            icon: FaMagic,
+            features: [
+                { name: 'Atmospheric Synthesis', desc: 'CRT, VHS, Rain, and Snow effects', free: false, pro: true },
+                { name: 'Aura Synthesis', desc: 'Sparkle, Rainbow, and Glow identity states', free: false, pro: true },
+                { name: 'Video Backgrounds', desc: 'Dynamic motion backgrounds for your profile', free: false, pro: true },
+                { name: 'Custom Cursors', desc: 'Personalize your pointer arsenal', free: false, pro: true },
+                { name: 'Verified Creator Badge', desc: 'Official blue checkmark on your identity', free: false, pro: true },
+                { name: 'Identity Branding', desc: 'Remove all Vynn watermarks and branding', free: false, pro: true },
+            ]
+        },
+        {
+            title: 'Connectivity & Limits',
+            icon: FaBolt,
+            features: [
+                { name: 'Protocol Matrix', desc: 'Link up to 4 server nodes (vs 1 for free)', free: false, pro: true },
+                { name: 'Expanded Linkage', desc: '3 custom link slots (vs 1 for free)', free: false, pro: true },
+                { name: 'Custom Snapshots', desc: 'Save and load custom design templates', free: false, pro: true },
+                { name: 'Premium Marketplace', desc: 'Priority access to exclusive frames and assets', free: false, pro: true },
+                { name: 'Custom SEO', desc: 'Personalized social preview cards', free: false, pro: true },
+                { name: 'Priority Support', desc: 'Skip the queue for expert assistance', free: false, pro: true },
+            ]
+        },
+        {
+            title: 'Community & Promotion',
+            icon: FaBriefcase,
+            features: [
+                { name: 'Stellar Presentation', desc: 'Glowing gradient borders on server cards', free: false, pro: true },
+                { name: 'Live Feeds', desc: 'Real-time Discord channel previews', free: false, pro: true },
+                { name: 'Vanity URLs', desc: 'Custom server slugs (vynn.gg/servers/slug)', free: false, pro: true },
+                { name: 'Elite Analytics', desc: 'Deep traffic insights and conversion data', free: false, pro: true },
+                { name: 'Search Priority', desc: 'Boosted visibility in server discovery', free: false, pro: true },
+            ]
+        }
     ];
 
     return (
@@ -126,7 +152,7 @@ const Premium = () => {
                     </div>
 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '48px', flex: 1 }}>
-                        {['Limited Customization', 'Standard Analytics', 'Vynn Branding'].map(item => (
+                        {['1 Discord Slot', '1 Custom Link', 'Standard Analytics', 'Vynn Watermark'].map(item => (
                             <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '16px', color: 'rgba(161, 161, 161, 0.8)' }}>
                                 <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>
                                     <FaCheck />
@@ -177,10 +203,10 @@ const Premium = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginBottom: '48px', flex: 1 }}>
                         {[
                             { text: 'Dynamic Video Backgrounds', icon: FaMagic },
-                            { text: 'Detailed Audience Analytics', icon: FaChartBar },
-                            { text: 'Custom SEO & Social Preview', icon: FaGlobeAmericas },
+                            { text: 'Elite Audience Analytics', icon: FaChartBar },
+                            { text: 'Custom SEO & Social Cards', icon: FaGlobeAmericas },
                             { text: 'Verified Creator Badge', icon: FaUserShield },
-                            { text: 'White-label (No Branding)', icon: FaBriefcase },
+                            { text: 'Protocol Expansion (4 Slots)', icon: FaDiscord },
                         ].map((item, i) => (
                             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                 <div style={{
@@ -201,32 +227,36 @@ const Premium = () => {
                 </motion.div>
             </div>
 
-            {/* Comparison Table */}
-            <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '40px', textAlign: 'center' }}>Compare features</h3>
-                <div className="glass-panel" style={{ borderRadius: '24px', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                        <thead>
-                            <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                                <th className="table-cell table-head">Feature</th>
-                                <th className="table-cell table-head text-center">Free</th>
-                                <th className="table-cell table-head text-center" style={{ color: '#f97316' }}>Pro</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {features.map((f, i) => (
-                                <tr key={i} className="table-row">
-                                    <td className="table-cell" style={{ color: 'var(--text-secondary)' }}>{f.name}</td>
-                                    <td className="table-cell text-center">
-                                        {f.free ? <FaCheck style={{ color: 'rgba(161, 161, 161, 0.4)' }} /> : <FaMinus style={{ color: '#333' }} />}
-                                    </td>
-                                    <td className="table-cell text-center">
-                                        {f.pro ? <FaCheck style={{ color: '#f97316' }} /> : <FaMinus />}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+            {/* Comprehensive Feature Showcase */}
+            <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '48px', textAlign: 'center', letterSpacing: '-0.02em' }}>
+                    Everything unlocked with <span style={{ color: '#f97316' }}>Pro</span>
+                </h3>
+
+                <div className="grid grid-cols-1 md-cols-3 gap-8 mb-16 px-4">
+                    {featureSections.map((section, idx) => (
+                        <div key={idx} className="flex flex-col gap-6">
+                            <div className="flex items-center gap-3 mb-2">
+                                <section.icon className="text-[#f97316] text-lg" />
+                                <h4 className="text-xs font-black uppercase tracking-widest text-white/50">{section.title}</h4>
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                {section.features.map((f, i) => (
+                                    <div key={i} className="glass-panel p-5 rounded-3xl group hover:border-orange-500/30 transition-all">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h5 className="text-sm font-bold text-white group-hover:text-orange-500 transition-colors">{f.name}</h5>
+                                            <FaCheckCircle className="text-orange-500/40 group-hover:text-orange-500" size={14} />
+                                        </div>
+                                        <p className="text-[10px] leading-relaxed text-secondary font-medium">{f.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="text-center">
+                    <p className="text-secondary text-xs font-bold uppercase tracking-widest opacity-40 mb-10">Powering over 10,000+ personal and community hubs.</p>
                 </div>
             </div>
 
@@ -250,6 +280,7 @@ const Premium = () => {
                     border-bottom: none;
                 }
             `}</style>
+
         </div>
     );
 };
